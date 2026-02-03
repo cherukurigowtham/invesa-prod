@@ -1,16 +1,25 @@
+import { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
 
 const Navbar = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')));
+    const navigate = useNavigate();
 
-    // Removed unused imports if any were left, but useState/useEffect might still be imported unused.
-    // Ideally clean those up too.
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setUser(JSON.parse(localStorage.getItem('user')));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('user');
-        window.location.reload();
+        window.dispatchEvent(new Event("storage"));
+        navigate('/login');
     };
 
     return (

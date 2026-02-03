@@ -14,6 +14,8 @@ const Register = () => {
         role: 'Entrepreneur'
     });
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [strength, setStrength] = useState(0);
     const navigate = useNavigate();
 
@@ -23,6 +25,11 @@ const Register = () => {
             setError("Password is too weak. Please use at least 8 characters, ensuring a mix of letters, numbers, and symbols.");
             return;
         }
+
+        setIsLoading(true);
+        setError('');
+        setSuccess('');
+
         try {
             await api.post('/register', formData);
 
@@ -33,11 +40,18 @@ const Register = () => {
             });
 
             localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
-            alert('Account created successfully!');
-            navigate('/');
-            window.location.reload(); // To update Navbar
+            setSuccess('Account created successfully! Redirecting...');
+
+            // Trigger Navbar update without reload
+            window.dispatchEvent(new Event("storage"));
+
+            setTimeout(() => {
+                navigate('/');
+            }, 1000); // Slight delay to let user see success message
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -52,6 +66,7 @@ const Register = () => {
                         value={formData.full_name}
                         onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         required
+                        disabled={isLoading}
                     />
                     <Input
                         placeholder="Email"
@@ -59,12 +74,14 @@ const Register = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
+                        disabled={isLoading}
                     />
                     <Input
                         placeholder="Username"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         required
+                        disabled={isLoading}
                     />
                     <Input
                         type="password"
@@ -81,6 +98,7 @@ const Register = () => {
                             setStrength(s);
                         }}
                         required
+                        disabled={isLoading}
                     />
                     {formData.password && (
                         <div className="space-y-1">
@@ -102,6 +120,7 @@ const Register = () => {
                         className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        disabled={isLoading}
                     >
                         <option value="Entrepreneur">Entrepreneur</option>
                         <option value="Investor">Investor</option>
@@ -111,8 +130,12 @@ const Register = () => {
                         placeholder="Tell us about yourself..."
                         value={formData.bio}
                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        disabled={isLoading}
                     />
-                    <Button type="submit" className="w-full">Create Account</Button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                    </Button>
+                    {success && <p className="text-green-500 text-center text-sm font-semibold mt-2">{success}</p>}
                 </form>
                 <p className="mt-4 text-center text-sm text-muted-foreground">
                     Already have an account? <Link to="/login" className="text-primary hover:underline">Login</Link>
