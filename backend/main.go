@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"invesa_backend/internal/database"
@@ -34,8 +35,13 @@ func main() {
 	r := gin.Default()
 
 	// CORS Setup
+	allowedOrigins := []string{"http://localhost:5173", "http://localhost:5174", "http://localhost"}
+	if origins := os.Getenv("ALLOWED_ORIGINS"); origins != "" {
+		allowedOrigins = append(allowedOrigins, strings.Split(origins, ",")...)
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174", "http://localhost"}, // Vue/React dev server & Prod
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

@@ -25,7 +25,17 @@ const Register = () => {
         }
         try {
             await api.post('/register', formData);
-            navigate('/login');
+
+            // Automatic login
+            const loginResponse = await api.post('/login', {
+                username: formData.username,
+                password: formData.password
+            });
+
+            localStorage.setItem('user', JSON.stringify(loginResponse.data.user));
+            alert('Account created successfully!');
+            navigate('/');
+            window.location.reload(); // To update Navbar
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed');
         }

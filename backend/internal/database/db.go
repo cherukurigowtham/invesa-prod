@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,18 +14,22 @@ var DB *pgxpool.Pool
 
 func Connect() error {
 	// Priority 1: Use full connection string if provided (Standard for Render/Heroku)
-	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
+	dbURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
+	if dbURL != "" {
+		log.Println("Attempting to connect via DATABASE_URL env var...")
 		var err error
 		DB, err = pgxpool.New(context.Background(), dbURL)
 		if err != nil {
 			return fmt.Errorf("unable to connect to database (URL): %v", err)
 		}
 		if err := DB.Ping(context.Background()); err != nil {
-			return fmt.Errorf("unable to ping database: %v", err)
+			return fmt.Errorf("unable to ping database (URL): %v", err)
 		}
 		log.Println("Connected to database successfully (via DATABASE_URL)")
 		return nil
 	}
+
+	log.Println("DATABASE_URL not found, falling back to individual env vars...")
 
 	// Priority 2: Construct from individual vars (Manual setup)
 	host := getEnv("DB_HOST", "localhost")
@@ -36,6 +41,8 @@ func Connect() error {
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		user, password, host, port, dbname, sslmode)
+
+	log.Printf("Connecting with DSN: postgres://%s:****@%s:%s/%s?sslmode=%s", user, host, port, dbname, sslmode)
 
 	var err error
 	DB, err = pgxpool.New(context.Background(), dsn)
