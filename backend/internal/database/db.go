@@ -12,14 +12,30 @@ import (
 var DB *pgxpool.Pool
 
 func Connect() error {
+	// Priority 1: Use full connection string if provided (Standard for Render/Heroku)
+	if dbURL := os.Getenv("DATABASE_URL"); dbURL != "" {
+		var err error
+		DB, err = pgxpool.New(context.Background(), dbURL)
+		if err != nil {
+			return fmt.Errorf("unable to connect to database (URL): %v", err)
+		}
+		if err := DB.Ping(context.Background()); err != nil {
+			return fmt.Errorf("unable to ping database: %v", err)
+		}
+		log.Println("Connected to database successfully (via DATABASE_URL)")
+		return nil
+	}
+
+	// Priority 2: Construct from individual vars (Manual setup)
 	host := getEnv("DB_HOST", "localhost")
 	user := getEnv("DB_USER", "postgres")
 	password := getEnv("DB_PASSWORD", "password")
 	dbname := getEnv("DB_NAME", "invesa")
 	port := getEnv("DB_PORT", "5432")
+	sslmode := getEnv("DB_SSLMODE", "disable") // disable for local, require for prod
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		user, password, host, port, dbname)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		user, password, host, port, dbname, sslmode)
 
 	var err error
 	DB, err = pgxpool.New(context.Background(), dsn)
