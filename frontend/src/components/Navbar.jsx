@@ -25,10 +25,10 @@ const Navbar = () => {
     return (
         <nav className="bg-black border-b border-gray-800 fixed top-0 left-0 w-full z-50">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                <Link to="/" className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-default">
                     <img src="/logo.png" alt="Invesa Logo" className="h-8 w-auto" />
                     <span className="text-xl font-bold text-white">Invesa</span>
-                </Link>
+                </div>
 
                 <div className="flex items-center gap-6">
                     {user ? (
