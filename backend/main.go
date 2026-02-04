@@ -67,7 +67,11 @@ func main() {
 		api.GET("/messages", handlers.GetMessages) // ?user1=1&user2=2
 
 		api.GET("/matches", handlers.GetMatches)
-		api.POST("/upgrade", handlers.UpgradeToPremium)
+		api.GET("/matches", handlers.GetMatches)
+		api.POST("/upgrade", handlers.UpgradeToPremium) // Keep for demo
+		api.POST("/payment/initiate", handlers.InitiatePayment)
+		api.POST("/payment/callback", handlers.PaymentCallback)
+		api.POST("/payment/success", handlers.VerifySuccess)
 	}
 
 	port := os.Getenv("PORT")

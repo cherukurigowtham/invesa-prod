@@ -9,8 +9,26 @@ const Matches = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchMatches();
+        // Check URL for success param (PhonePe Redirect)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('status') === 'success') {
+            verifyBackendSuccess();
+        } else {
+            fetchMatches();
+        }
     }, []);
+
+    const verifyBackendSuccess = async () => {
+        try {
+            await api.post('/payment/success');
+            alert("Payment Successful! Premium Unlocked.");
+            // Clean URL
+            window.history.replaceState({}, document.title, "/matches");
+            fetchMatches();
+        } catch (error) {
+            console.error("Verification failed", error);
+        }
+    };
 
     const fetchMatches = async () => {
         try {
@@ -40,14 +58,18 @@ const Matches = () => {
     };
 
     const handleUpgrade = async () => {
-        if (confirm("Unlock Premium for $1 (Simulated)?")) {
-            try {
-                await api.post('/upgrade');
-                fetchMatches(); // Refresh to see unblurred
-                alert("Welcome to Premium! Matches unlocked.");
-            } catch (error) {
-                alert("Upgrade failed");
+        try {
+            // Call Backend to get PhonePe Redirect URL
+            const res = await api.post('/payment/initiate');
+            const { url } = res.data;
+            if (url) {
+                window.location.href = url; // Redirect user to PhonePe
+            } else {
+                alert("Failed to initiate payment");
             }
+        } catch (error) {
+            console.error(error);
+            alert("Payment failed");
         }
     };
 
