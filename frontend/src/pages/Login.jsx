@@ -14,8 +14,9 @@ const Login = () => {
         try {
             const response = await api.post('/login', formData);
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            window.dispatchEvent(new Event("storage")); // Update Navbar
             navigate('/');
-            window.location.reload(); // To update Navbar
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed');
         }
