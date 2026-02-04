@@ -54,6 +54,8 @@ func main() {
 	{
 		api.POST("/register", handlers.Register)
 		api.POST("/login", handlers.Login)
+		api.POST("/forgot-password", handlers.ForgotPassword)
+		api.POST("/reset-password", handlers.ResetPassword)
 
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)

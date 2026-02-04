@@ -98,6 +98,13 @@ func CreateTables() error {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (user_id, idea_id)
 		)`,
+		`CREATE TABLE IF NOT EXISTS password_resets (
+			id SERIAL PRIMARY KEY,
+			user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+			token TEXT NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
 		`CREATE TABLE IF NOT EXISTS comments (
 			id SERIAL PRIMARY KEY,
 			idea_id INTEGER REFERENCES ideas(id),

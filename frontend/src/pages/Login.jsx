@@ -38,6 +38,9 @@ const Login = () => {
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
+                    <div className="flex justify-end">
+                        <Link to="/forgot-password" className="text-sm text-primary hover:underline">Forgot Password?</Link>
+                    </div>
                     <Button type="submit" className="w-full">Login</Button>
                 </form>
                 <p className="mt-4 text-center text-sm text-muted-foreground">
