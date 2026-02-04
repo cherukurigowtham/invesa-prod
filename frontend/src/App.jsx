@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -8,6 +8,18 @@ import ResetPassword from './pages/ResetPassword';
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
 import Footer from './components/Footer';
+
+// GuestRoute component to prevent authenticated users from accessing auth pages
+const GuestRoute = ({ children }) => {
+  const user = localStorage.getItem('user');
+  return user ? <Navigate to="/" replace /> : children;
+};
+
+// ProtectedRoute component (assuming it might be needed or existing logic to be consistent)
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem('user');
+  return user ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
@@ -22,12 +34,16 @@ function App() {
                 localStorage.getItem('user') ? <Home /> : <Login />
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+            <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+            <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+            <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
             <Route path="/post" element={<PostIdea />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
         <Footer />
