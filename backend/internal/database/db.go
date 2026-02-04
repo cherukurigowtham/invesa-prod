@@ -75,8 +75,10 @@ func CreateTables() error {
 			email VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
 			bio TEXT,
 			role VARCHAR(50) NOT NULL DEFAULT 'Entrepreneur',
+			is_premium BOOLEAN DEFAULT FALSE,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE`,
 		`CREATE TABLE IF NOT EXISTS ideas (
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER REFERENCES users(id),

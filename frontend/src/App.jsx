@@ -7,6 +7,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
+import Matches from './pages/Matches';
 import Footer from './components/Footer';
 
 // GuestRoute component to prevent authenticated users from accessing auth pages
@@ -42,6 +43,11 @@ function App() {
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/matches" element={
+              <ProtectedRoute>
+                <Matches />
               </ProtectedRoute>
             } />
           </Routes>

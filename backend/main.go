@@ -65,6 +65,9 @@ func main() {
 
 		api.POST("/messages", handlers.SendMessage)
 		api.GET("/messages", handlers.GetMessages) // ?user1=1&user2=2
+
+		api.GET("/matches", handlers.GetMatches)
+		api.POST("/upgrade", handlers.UpgradeToPremium)
 	}
 
 	port := os.Getenv("PORT")

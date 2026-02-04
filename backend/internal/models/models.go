@@ -10,6 +10,7 @@ type User struct {
 	Email     string    `json:"email"`
 	Bio       string    `json:"bio"`
 	Role      string    `json:"role"`
+	IsPremium bool      `json:"is_premium"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
