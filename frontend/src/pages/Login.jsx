@@ -12,15 +12,27 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/login', formData);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            // Trim inputs to avoid whitespace errors
+            const payload = {
+                username: formData.username.trim(),
+                password: formData.password.trim()
+            };
+
+            const response = await api.post('/login', payload);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             window.dispatchEvent(new Event("storage")); // Update Navbar
-            navigate('/');
+            navigate('/', { replace: true });
         } catch (err) {
-            setError(err.response?.data?.error || 'Login failed');
+            console.error("Login Error:", err);
+            const msg = err.response?.data?.error || 'Login failed';
+            setError(msg);
         }
     };
+
+    // Redirect if already logged in (Double check in component)
+    if (localStorage.getItem('user')) {
+        navigate('/', { replace: true });
+    }
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center">

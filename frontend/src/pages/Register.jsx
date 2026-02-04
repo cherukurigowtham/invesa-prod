@@ -46,7 +46,7 @@ const Register = () => {
             window.dispatchEvent(new Event("storage"));
 
             setTimeout(() => {
-                navigate('/');
+                navigate('/', { replace: true });
             }, 1000); // Slight delay to let user see success message
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed');
