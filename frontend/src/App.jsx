@@ -8,7 +8,7 @@ import ResetPassword from './pages/ResetPassword';
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
 import Matches from './pages/Matches';
-import CompleteRegistration from './pages/CompleteRegistration';
+
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import Advertise from './pages/Advertise';
@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-    return (
+  return (
     <Router>
       <ErrorBoundary>
         <div className="min-h-screen bg-background text-foreground pt-16">
@@ -44,7 +44,7 @@ function App() {
               <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
               <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
               <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
-              <Route path="/complete-registration" element={<GuestRoute><CompleteRegistration /></GuestRoute>} />
+
               <Route path="/post" element={<PostIdea />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/admin/ads" element={<AdminAds />} />
@@ -64,7 +64,7 @@ function App() {
         </div>
       </ErrorBoundary>
     </Router>
-    );
+  );
 }
 
 export default App;

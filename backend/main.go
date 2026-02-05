@@ -65,7 +65,12 @@ func main() {
 	r.Use(middleware.RateLimit(120, rateLimitWindow, rateLimitCleanup))
 
 	// CORS Setup
-	allowedOrigins := []string{"http://localhost:5173", "http://localhost:5174", "http://localhost"}
+	allowedOrigins := []string{
+		"http://localhost:5173",
+		"http://localhost:5174",
+		"http://localhost",
+		"https://invesa-prod-he47.vercel.app",
+	}
 	if origins := os.Getenv("ALLOWED_ORIGINS"); origins != "" {
 		allowedOrigins = append(allowedOrigins, strings.Split(origins, ",")...)
 	}
@@ -90,11 +95,6 @@ func main() {
 		api.POST("/login", handlers.Login)
 		api.POST("/forgot-password", handlers.ForgotPassword)
 		api.POST("/reset-password", handlers.ResetPassword)
-
-		// Magic Link Registration
-		api.POST("/auth/initiate-registration", handlers.InitiateRegistration)
-		api.POST("/auth/complete-registration", handlers.CompleteRegistration)
-		api.GET("/auth/validate-token", handlers.ValidateRegistrationToken)
 
 		api.POST("/feedback", handlers.SubmitFeedback)
 		api.POST("/ads/quote", handlers.QuoteAd)

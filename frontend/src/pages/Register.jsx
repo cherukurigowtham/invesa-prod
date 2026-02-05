@@ -4,23 +4,43 @@ import api from '../api';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
+import Button from '../components/Button';
+import Input from '../components/Input';
+
 const Register = () => {
-    const [email, setEmail] = useState('');
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        full_name: '',
+        role: 'Entrepreneur',
+        bio: ''
+    });
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        setSuccess('');
 
         try {
-            const response = await api.post('/auth/initiate-registration', { email: email.trim() });
-            setSuccess(response.data.message || 'Check your email for a link to complete registration');
+            await api.post('/register', {
+                ...formData,
+                username: formData.username.toLowerCase()
+            });
+            // Redirect to login page with success state if possible, or just navigate
+            navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to send registration link');
+            setError(err.response?.data?.error || 'Registration failed. Username or Email might be taken.');
         } finally {
             setIsLoading(false);
         }
@@ -28,52 +48,81 @@ const Register = () => {
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center">
-            <div className="w-full max-w-sm p-6 rounded-lg border shadow-lg bg-card">
-                <h1 className="text-2xl font-bold mb-2 text-center">Create Account</h1>
+            <div className="w-full max-w-md p-6 rounded-lg border shadow-lg bg-card">
+                <h1 className="text-2xl font-bold mb-2 text-center text-invesa-gold">Create Account</h1>
                 <p className="text-sm text-muted-foreground text-center mb-6">
-                    Enter your email to get started
+                    Join Invesa today
                 </p>
 
                 {error && <p className="text-red-500 mb-4 text-sm text-center">{error}</p>}
 
-                {success ? (
-                    <div className="text-center space-y-4">
-                        <div className="w-16 h-16 mx-auto bg-green-500/20 rounded-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <p className="text-green-500 font-semibold">{success}</p>
-                        <p className="text-sm text-muted-foreground">
-                            We've sent a magic link to <strong>{email}</strong>.
-                            Click the link in your email to complete your registration.
-                        </p>
-                        <Button
-                            onClick={() => { setSuccess(''); setEmail(''); }}
-                            className="w-full mt-4"
-                            variant="outline"
-                        >
-                            Send to a different email
-                        </Button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <Input
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <Input
+                        name="full_name"
+                        placeholder="Full Name"
+                        value={formData.full_name}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                    />
+                    <Input
+                        name="username"
+                        placeholder="Username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                    />
+                    <Input
+                        name="email"
+                        type="email"
+                        placeholder="Email Address"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                    />
+                    <Input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        minLength={6}
+                        disabled={isLoading}
+                    />
+                    
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Role</label>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                             disabled={isLoading}
-                        />
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Sending...' : 'Send Magic Link'}
-                        </Button>
-                    </form>
-                )}
+                        >
+                            <option value="Entrepreneur">Entrepreneur</option>
+                            <option value="Investor">Investor</option>
+                        </select>
+                    </div>
+
+                    <textarea
+                        name="bio"
+                        placeholder="Short Bio (Optional)"
+                        value={formData.bio}
+                        onChange={handleChange}
+                        className="w-full min-h-[80px] p-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        disabled={isLoading}
+                    />
+
+                    <Button type="submit" className="w-full bg-invesa-gold hover:bg-invesa-gold/90 text-black font-semibold" disabled={isLoading}>
+                        {isLoading ? 'Creating Account...' : 'Sign Up'}
+                    </Button>
+                </form>
 
                 <p className="mt-6 text-center text-sm text-muted-foreground">
-                    Already have an account? <Link to="/login" className="text-primary hover:underline">Login</Link>
+                    Already have an account? <Link to="/login" className="text-invesa-gold hover:underline">Login</Link>
                 </p>
             </div>
         </div>
