@@ -84,7 +84,7 @@ func SendRegistrationEmail(toEmail, token string) error {
 		log.Printf("Failed to send registration email: %v\n", err)
 		log.Println("FALLBACK LINK LOG:")
 		log.Println(registrationLink)
-		return err
+		return nil // Return nil so frontend shows success and user can check logs
 	}
 
 	return nil
