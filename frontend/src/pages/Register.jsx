@@ -1,8 +1,4 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../api';
-import Button from '../components/Button';
-import Input from '../components/Input';
+
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -92,7 +88,7 @@ const Register = () => {
                         minLength={6}
                         disabled={isLoading}
                     />
-                    
+
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Role</label>
                         <select
