@@ -27,7 +27,8 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
         const fetchMessages = async () => {
             try {
                 const response = await api.get(`/messages?user1=${currentUser.id}&user2=${receiverId}`);
-                setMessages(response.data);
+                const items = response.data?.items ?? response.data ?? [];
+                setMessages(items);
                 scrollToBottom();
             } catch (error) {
                 console.error("Failed to fetch messages", error);
@@ -58,7 +59,8 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
             // Optimistic update or wait for poll
             // Let's wait for poll or just refetch immediately
             const response = await api.get(`/messages?user1=${currentUser.id}&user2=${receiverId}`);
-            setMessages(response.data);
+            const items = response.data?.items ?? response.data ?? [];
+            setMessages(items);
             scrollToBottom();
         } catch (error) {
             console.error("Failed to send message", error);

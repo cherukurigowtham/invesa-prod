@@ -57,7 +57,17 @@ func GetMessages(c *gin.Context) {
 		messages = append(messages, m)
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, messages)
+	utils.RespondWithJSON(c, http.StatusOK, MessagesResponse{
+		Items:  messages,
+		Limit:  limit,
+		Offset: offset,
+	})
+}
+
+type MessagesResponse struct {
+	Items  []models.Message `json:"items"`
+	Limit  int              `json:"limit"`
+	Offset int              `json:"offset"`
 }
 
 func parseLimit(value string) int {

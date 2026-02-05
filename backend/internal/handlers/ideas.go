@@ -7,6 +7,8 @@ import (
 	"invesa_backend/internal/utils"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +31,8 @@ func CreateIdea(c *gin.Context) {
 		return
 	}
 
+	clearIdeasCache()
+
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Idea posted successfully"})
 }
 
@@ -38,6 +42,14 @@ func GetIdeas(c *gin.Context) {
 	userID := c.Query("user_id")
 	limit := parseLimit(c.Query("limit"))
 	offset := parseOffset(c.Query("offset"))
+
+	cacheKey := ideasCacheKey(category, search, userID, limit, offset)
+	if search == "" && userID == "" {
+		if cached, ok := getIdeasCache(cacheKey); ok {
+			utils.RespondWithJSON(c, http.StatusOK, cached)
+			return
+		}
+	}
 
 	query := "SELECT id, user_id, title, description, category, created_at, (SELECT COUNT(*) FROM idea_likes WHERE idea_id = ideas.id) as likes_count FROM ideas WHERE 1=1"
 	args := []interface{}{}
@@ -82,11 +94,27 @@ func GetIdeas(c *gin.Context) {
 		ideas = append(ideas, i)
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, ideas)
+	response := IdeasResponse{
+		Items:  ideas,
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	if search == "" && userID == "" {
+		setIdeasCache(cacheKey, response)
+	}
+
+	utils.RespondWithJSON(c, http.StatusOK, response)
 }
 
 type LikeRequest struct {
 	UserID int `json:"user_id"`
+}
+
+type IdeasResponse struct {
+	Items  []models.Idea `json:"items"`
+	Limit  int           `json:"limit"`
+	Offset int           `json:"offset"`
 }
 
 func parseLimit(value string) int {
@@ -147,5 +175,53 @@ func LikeIdea(c *gin.Context) {
 		return
 	}
 
+	clearIdeasCache()
+
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Success", "liked": !exists})
+}
+
+type ideasCacheEntry struct {
+	value     IdeasResponse
+	expiresAt time.Time
+}
+
+var (
+	ideasCacheMu sync.Mutex
+	ideasCache   = map[string]ideasCacheEntry{}
+)
+
+const ideasCacheTTL = 10 * time.Second
+
+func ideasCacheKey(category, search, userID string, limit, offset int) string {
+	return fmt.Sprintf("category=%s|search=%s|user=%s|limit=%d|offset=%d", category, search, userID, limit, offset)
+}
+
+func getIdeasCache(key string) (IdeasResponse, bool) {
+	ideasCacheMu.Lock()
+	defer ideasCacheMu.Unlock()
+
+	entry, ok := ideasCache[key]
+	if !ok {
+		return IdeasResponse{}, false
+	}
+	if time.Now().After(entry.expiresAt) {
+		delete(ideasCache, key)
+		return IdeasResponse{}, false
+	}
+	return entry.value, true
+}
+
+func setIdeasCache(key string, value IdeasResponse) {
+	ideasCacheMu.Lock()
+	defer ideasCacheMu.Unlock()
+	ideasCache[key] = ideasCacheEntry{
+		value:     value,
+		expiresAt: time.Now().Add(ideasCacheTTL),
+	}
+}
+
+func clearIdeasCache() {
+	ideasCacheMu.Lock()
+	defer ideasCacheMu.Unlock()
+	ideasCache = map[string]ideasCacheEntry{}
 }

@@ -57,6 +57,12 @@ func main() {
 		)
 	}))
 	r.Use(middleware.RequestID())
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.ResponseTime())
+
+	rateLimitWindow := 1 * time.Minute
+	rateLimitCleanup := 5 * time.Minute
+	r.Use(middleware.RateLimit(120, rateLimitWindow, rateLimitCleanup))
 
 	// CORS Setup
 	allowedOrigins := []string{"http://localhost:5173", "http://localhost:5174", "http://localhost"}
@@ -76,6 +82,10 @@ func main() {
 	// Routes
 	api := r.Group("/api")
 	{
+		api.GET("/health", func(c *gin.Context) {
+			utils.RespondWithJSON(c, http.StatusOK, gin.H{"status": "ok"})
+		})
+
 		api.POST("/register", handlers.Register) // Legacy: keep for backward compatibility
 		api.POST("/login", handlers.Login)
 		api.POST("/forgot-password", handlers.ForgotPassword)
@@ -85,6 +95,11 @@ func main() {
 		api.POST("/auth/initiate-registration", handlers.InitiateRegistration)
 		api.POST("/auth/complete-registration", handlers.CompleteRegistration)
 		api.GET("/auth/validate-token", handlers.ValidateRegistrationToken)
+
+		api.POST("/feedback", handlers.SubmitFeedback)
+		api.POST("/ads/quote", handlers.QuoteAd)
+		api.POST("/ads", handlers.CreateAd)
+		api.GET("/ads", handlers.ListAds)
 
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)
@@ -105,6 +120,12 @@ func main() {
 
 		// Webhook callback (no user context, server-to-server)
 		api.POST("/payment/callback", handlers.PaymentCallback)
+
+		admin := api.Group("/admin", middleware.RequireAdmin())
+		{
+			admin.GET("/ads", handlers.AdminListAds)
+			admin.POST("/ads/:id/mark-paid", handlers.AdminMarkPaid)
+		}
 	}
 
 	port := os.Getenv("PORT")

@@ -13,7 +13,8 @@ const Profile = () => {
             try {
                 // Using the main ideas endpoint with a user_id filter
                 const response = await api.get(`/ideas?user_id=${user.id}`);
-                setMyIdeas(response.data || []);
+                const items = response.data?.items ?? response.data ?? [];
+                setMyIdeas(items);
             } catch (error) {
                 console.error("Failed to fetch my ideas", error);
             } finally {

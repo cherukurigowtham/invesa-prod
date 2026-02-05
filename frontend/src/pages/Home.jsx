@@ -6,6 +6,7 @@ import Button from '../components/Button';
 
 const Home = () => {
     const [ideas, setIdeas] = useState([]);
+    const [ads, setAds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('All');
@@ -20,7 +21,8 @@ const Home = () => {
                 if (category && category !== 'All') params.category = category;
 
                 const response = await api.get('/ideas', { params });
-                setIdeas(response.data || []);
+                const items = response.data?.items ?? response.data ?? [];
+                setIdeas(items);
             } catch (error) {
                 console.error("Failed to fetch ideas", error);
             } finally {
@@ -28,9 +30,19 @@ const Home = () => {
             }
         };
 
+        const fetchAds = async () => {
+            try {
+                const response = await api.get('/ads', { params: { placement: 'home' } });
+                setAds(response.data?.items || []);
+            } catch (error) {
+                console.error("Failed to fetch ads", error);
+            }
+        };
+
         // Debounce search a bit or just run on effect
         const timer = setTimeout(() => {
             fetchIdeas();
+            fetchAds();
         }, 300);
 
         return () => clearTimeout(timer);
@@ -90,6 +102,27 @@ const Home = () => {
                         <p className="text-center text-gray-400">Loading ideas...</p>
                     ) : (
                         <div className="flex flex-col gap-6">
+                            {ads.length > 0 && (
+                                <div className="rounded-xl border border-yellow-800/40 bg-[#0d0d0d] p-5">
+                                    <p className="text-xs uppercase tracking-widest text-yellow-500 mb-2">Sponsored</p>
+                                    <h3 className="text-lg font-semibold text-white">
+                                        {ads[0].headline || ads[0].advertiser_name}
+                                    </h3>
+                                    <p className="text-sm text-gray-400 mt-2">
+                                        {ads[0].requirements || "Trusted partner for founders and investors."}
+                                    </p>
+                                    {ads[0].cta_url && (
+                                        <a
+                                            href={ads[0].cta_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex mt-4 text-sm font-semibold text-yellow-400 hover:text-yellow-300"
+                                        >
+                                            Learn more →
+                                        </a>
+                                    )}
+                                </div>
+                            )}
                             {Array.isArray(ideas) && ideas.map((idea) => (
                                 <IdeaCard key={idea.id} idea={idea} currentUser={currentUser} />
                             ))}

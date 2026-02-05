@@ -9,6 +9,10 @@ import (
 
 // RespondWithError creates a standardized JSON error response
 func RespondWithError(c *gin.Context, code int, message string) {
+	if requestID, ok := c.Get("request_id"); ok {
+		c.JSON(code, gin.H{"error": message, "request_id": requestID})
+		return
+	}
 	c.JSON(code, gin.H{"error": message})
 }
 
