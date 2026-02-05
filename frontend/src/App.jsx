@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Matches from './pages/Matches';
 import CompleteRegistration from './pages/CompleteRegistration';
 import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // GuestRoute component to prevent authenticated users from accessing auth pages
 const GuestRoute = ({ children }) => {
@@ -24,40 +25,42 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  return (
+    return (
     <Router>
-      <div className="min-h-screen bg-background text-foreground pt-16">
-        <Navbar />
-        <main>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                localStorage.getItem('user') ? <Home /> : <Login />
-              }
-            />
-            <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-            <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
-            <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
-            <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
-            <Route path="/complete-registration" element={<GuestRoute><CompleteRegistration /></GuestRoute>} />
-            <Route path="/post" element={<PostIdea />} />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/matches" element={
-              <ProtectedRoute>
-                <Matches />
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <ErrorBoundary>
+        <div className="min-h-screen bg-background text-foreground pt-16">
+          <Navbar />
+          <main>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  localStorage.getItem('user') ? <Home /> : <Login />
+                }
+              />
+              <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+              <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+              <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+              <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
+              <Route path="/complete-registration" element={<GuestRoute><CompleteRegistration /></GuestRoute>} />
+              <Route path="/post" element={<PostIdea />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/matches" element={
+                <ProtectedRoute>
+                  <Matches />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </ErrorBoundary>
     </Router>
-  );
+    );
 }
 
 export default App;

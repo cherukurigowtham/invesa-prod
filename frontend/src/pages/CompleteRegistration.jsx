@@ -72,7 +72,9 @@ const CompleteRegistration = () => {
             });
 
             // Auto-login
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            const user = response.data.user || {};
+            const token = response.data.token;
+            localStorage.setItem('user', JSON.stringify({ ...user, token }));
             window.dispatchEvent(new Event("storage"));
             navigate('/', { replace: true });
         } catch (err) {

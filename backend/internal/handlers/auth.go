@@ -41,7 +41,21 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "User registered successfully", "user_id": userID})
+	token, _ := utils.GenerateJWT(userID)
+
+	utils.RespondWithJSON(c, http.StatusOK, gin.H{
+		"message": "User registered successfully",
+		"user": map[string]interface{}{
+			"id":         userID,
+			"username":   user.Username,
+			"full_name":  user.FullName,
+			"email":      user.Email,
+			"bio":        user.Bio,
+			"role":       user.Role,
+			"is_premium": false,
+		},
+		"token": token,
+	})
 }
 
 func Login(c *gin.Context) {
@@ -52,7 +66,8 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	err := database.DB.QueryRow(c, "SELECT id, username, password FROM users WHERE username = $1", input.Username).Scan(&user.ID, &user.Username, &user.Password)
+	err := database.DB.QueryRow(c, "SELECT id, username, password, full_name, email, role, bio, is_premium FROM users WHERE username = $1",
+		input.Username).Scan(&user.ID, &user.Username, &user.Password, &user.FullName, &user.Email, &user.Role, &user.Bio, &user.IsPremium)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusUnauthorized, "Invalid credentials")
 		return
@@ -63,7 +78,21 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Login successful", "user": map[string]interface{}{"id": user.ID, "username": user.Username}})
+	token, _ := utils.GenerateJWT(user.ID)
+
+	utils.RespondWithJSON(c, http.StatusOK, gin.H{
+		"message": "Login successful",
+		"user": map[string]interface{}{
+			"id":         user.ID,
+			"username":   user.Username,
+			"full_name":  user.FullName,
+			"email":      user.Email,
+			"bio":        user.Bio,
+			"role":       user.Role,
+			"is_premium": user.IsPremium,
+		},
+		"token": token,
+	})
 }
 
 // InitiateRegistration sends a magic link to the user's email
@@ -168,10 +197,21 @@ func CompleteRegistration(c *gin.Context) {
 	// Delete used token
 	_, _ = database.DB.Exec(c, "DELETE FROM registration_tokens WHERE token = $1", input.Token)
 
+	token, _ := utils.GenerateJWT(userID)
+
 	// Return success with user info for auto-login
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{
 		"message": "Account created successfully",
-		"user":    map[string]interface{}{"id": userID, "username": input.Username},
+		"user": map[string]interface{}{
+			"id":         userID,
+			"username":   input.Username,
+			"full_name":  input.FullName,
+			"email":      email,
+			"bio":        input.Bio,
+			"role":       input.Role,
+			"is_premium": false,
+		},
+		"token": token,
 	})
 }
 

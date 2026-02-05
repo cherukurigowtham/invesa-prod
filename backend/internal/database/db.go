@@ -124,6 +124,7 @@ func CreateTables() error {
 		`CREATE INDEX IF NOT EXISTS idx_ideas_category ON ideas(category)`,
 		`CREATE INDEX IF NOT EXISTS idx_ideas_userid ON ideas(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_likes_ideaid ON idea_likes(idea_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, receiver_id, created_at)`,
 	}
 
 	for _, query := range queries {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import Button from '../components/Button';
@@ -19,7 +19,9 @@ const Login = () => {
             };
 
             const response = await api.post('/login', payload);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            const user = response.data.user || {};
+            const token = response.data.token;
+            localStorage.setItem('user', JSON.stringify({ ...user, token }));
             window.dispatchEvent(new Event("storage")); // Update Navbar
             navigate('/', { replace: true });
         } catch (err) {
@@ -29,10 +31,11 @@ const Login = () => {
         }
     };
 
-    // Redirect if already logged in (Double check in component)
-    if (localStorage.getItem('user')) {
-        navigate('/', { replace: true });
-    }
+    useEffect(() => {
+        if (localStorage.getItem('user')) {
+            navigate('/', { replace: true });
+        }
+    }, [navigate]);
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center">

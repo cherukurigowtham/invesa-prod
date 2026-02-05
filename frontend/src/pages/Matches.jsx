@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import Navbar from '../components/Navbar';
 
 const Matches = () => {
     const [matches, setMatches] = useState([]);

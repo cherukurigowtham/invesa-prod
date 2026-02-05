@@ -6,6 +6,7 @@ import (
 	"invesa_backend/internal/models"
 	"invesa_backend/internal/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,8 @@ func GetIdeas(c *gin.Context) {
 	category := c.Query("category")
 	search := c.Query("search")
 	userID := c.Query("user_id")
+	limit := parseLimit(c.Query("limit"))
+	offset := parseOffset(c.Query("offset"))
 
 	query := "SELECT id, user_id, title, description, category, created_at, (SELECT COUNT(*) FROM idea_likes WHERE idea_id = ideas.id) as likes_count FROM ideas WHERE 1=1"
 	args := []interface{}{}
@@ -58,7 +61,8 @@ func GetIdeas(c *gin.Context) {
 		argId++
 	}
 
-	query += " ORDER BY created_at DESC"
+	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argId, argId+1)
+	args = append(args, limit, offset)
 
 	rows, err := database.DB.Query(c, query, args...)
 	if err != nil {
@@ -83,6 +87,35 @@ func GetIdeas(c *gin.Context) {
 
 type LikeRequest struct {
 	UserID int `json:"user_id"`
+}
+
+func parseLimit(value string) int {
+	const (
+		defaultLimit = 20
+		maxLimit     = 100
+	)
+	if value == "" {
+		return defaultLimit
+	}
+	limit, err := strconv.Atoi(value)
+	if err != nil || limit <= 0 {
+		return defaultLimit
+	}
+	if limit > maxLimit {
+		return maxLimit
+	}
+	return limit
+}
+
+func parseOffset(value string) int {
+	if value == "" {
+		return 0
+	}
+	offset, err := strconv.Atoi(value)
+	if err != nil || offset < 0 {
+		return 0
+	}
+	return offset
 }
 
 func LikeIdea(c *gin.Context) {

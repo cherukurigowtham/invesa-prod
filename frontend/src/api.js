@@ -12,9 +12,24 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 10000,
 });
 
 console.log('API Base URL:', baseUrl);
 
+api.interceptors.request.use((config) => {
+    const rawUser = localStorage.getItem('user');
+    if (rawUser) {
+        try {
+            const user = JSON.parse(rawUser);
+            if (user?.token) {
+                config.headers.Authorization = `Bearer ${user.token}`;
+            }
+        } catch {
+            // Ignore invalid localStorage values
+        }
+    }
+    return config;
+});
 
 export default api;
