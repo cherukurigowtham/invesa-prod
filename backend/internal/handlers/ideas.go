@@ -6,7 +6,6 @@ import (
 	"invesa_backend/internal/models"
 	"invesa_backend/internal/utils"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
@@ -40,7 +39,7 @@ func GetIdeas(c *gin.Context) {
 	category := c.Query("category")
 	search := c.Query("search")
 	userID := c.Query("user_id")
-	limit := parseLimit(c.Query("limit"))
+	limit := parseLimit(c.Query("limit"), 20, 100)
 	offset := parseOffset(c.Query("offset"))
 
 	cacheKey := ideasCacheKey(category, search, userID, limit, offset)
@@ -115,35 +114,6 @@ type IdeasResponse struct {
 	Items  []models.Idea `json:"items"`
 	Limit  int           `json:"limit"`
 	Offset int           `json:"offset"`
-}
-
-func parseLimit(value string) int {
-	const (
-		defaultLimit = 20
-		maxLimit     = 100
-	)
-	if value == "" {
-		return defaultLimit
-	}
-	limit, err := strconv.Atoi(value)
-	if err != nil || limit <= 0 {
-		return defaultLimit
-	}
-	if limit > maxLimit {
-		return maxLimit
-	}
-	return limit
-}
-
-func parseOffset(value string) int {
-	if value == "" {
-		return 0
-	}
-	offset, err := strconv.Atoi(value)
-	if err != nil || offset < 0 {
-		return 0
-	}
-	return offset
 }
 
 func LikeIdea(c *gin.Context) {

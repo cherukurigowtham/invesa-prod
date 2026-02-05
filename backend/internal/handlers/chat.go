@@ -29,7 +29,7 @@ func SendMessage(c *gin.Context) {
 func GetMessages(c *gin.Context) {
 	user1Str := c.Query("user1")
 	user2Str := c.Query("user2")
-	limit := parseLimit(c.Query("limit"))
+	limit := parseLimit(c.Query("limit"), 50, 200)
 	offset := parseOffset(c.Query("offset"))
 
 	user1, _ := strconv.Atoi(user1Str)
@@ -68,33 +68,4 @@ type MessagesResponse struct {
 	Items  []models.Message `json:"items"`
 	Limit  int              `json:"limit"`
 	Offset int              `json:"offset"`
-}
-
-func parseLimit(value string) int {
-	const (
-		defaultLimit = 50
-		maxLimit     = 200
-	)
-	if value == "" {
-		return defaultLimit
-	}
-	limit, err := strconv.Atoi(value)
-	if err != nil || limit <= 0 {
-		return defaultLimit
-	}
-	if limit > maxLimit {
-		return maxLimit
-	}
-	return limit
-}
-
-func parseOffset(value string) int {
-	if value == "" {
-		return 0
-	}
-	offset, err := strconv.Atoi(value)
-	if err != nil || offset < 0 {
-		return 0
-	}
-	return offset
 }
