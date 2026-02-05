@@ -107,6 +107,13 @@ func CreateTables() error {
 			expires_at TIMESTAMP NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`CREATE TABLE IF NOT EXISTS registration_tokens (
+			id SERIAL PRIMARY KEY,
+			email VARCHAR(255) NOT NULL,
+			token TEXT NOT NULL UNIQUE,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
 		`CREATE TABLE IF NOT EXISTS comments (
 			id SERIAL PRIMARY KEY,
 			idea_id INTEGER REFERENCES ideas(id),

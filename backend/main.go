@@ -52,10 +52,15 @@ func main() {
 	// Routes
 	api := r.Group("/api")
 	{
-		api.POST("/register", handlers.Register)
+		api.POST("/register", handlers.Register) // Legacy: keep for backward compatibility
 		api.POST("/login", handlers.Login)
 		api.POST("/forgot-password", handlers.ForgotPassword)
 		api.POST("/reset-password", handlers.ResetPassword)
+
+		// Magic Link Registration
+		api.POST("/auth/initiate-registration", handlers.InitiateRegistration)
+		api.POST("/auth/complete-registration", handlers.CompleteRegistration)
+		api.GET("/auth/validate-token", handlers.ValidateRegistrationToken)
 
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)
@@ -66,7 +71,6 @@ func main() {
 		api.POST("/messages", handlers.SendMessage)
 		api.GET("/messages", handlers.GetMessages) // ?user1=1&user2=2
 
-		api.GET("/matches", handlers.GetMatches)
 		api.GET("/matches", handlers.GetMatches)
 		api.POST("/upgrade", handlers.UpgradeToPremium) // Keep for demo
 		api.POST("/payment/initiate", handlers.InitiatePayment)
