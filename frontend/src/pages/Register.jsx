@@ -12,7 +12,7 @@ const Register = () => {
         username: '',
         email: '',
         password: '',
-        full_name: '',
+        confirm_password: '',
         role: 'Entrepreneur',
         bio: ''
     });
@@ -28,10 +28,20 @@ const Register = () => {
         setIsLoading(true);
         setError('');
 
+        if (formData.password !== formData.confirm_password) {
+            setError("Passwords do not match");
+            setIsLoading(false);
+            return;
+        }
+
         try {
             await api.post('/register', {
-                ...formData,
-                username: formData.username.toLowerCase()
+                username: formData.username.toLowerCase(),
+                email: formData.email,
+                password: formData.password,
+                role: formData.role,
+                bio: formData.bio,
+                full_name: '' // Send empty string for now as DB expects it
             });
             // Redirect to login page with success state if possible, or just navigate
             navigate('/login');
@@ -54,14 +64,6 @@ const Register = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input
-                        name="full_name"
-                        placeholder="Full Name"
-                        value={formData.full_name}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                    />
-                    <Input
                         name="username"
                         placeholder="Username"
                         value={formData.username}
@@ -78,16 +80,31 @@ const Register = () => {
                         required
                         disabled={isLoading}
                     />
-                    <Input
-                        name="password"
-                        type="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={6}
-                        disabled={isLoading}
-                    />
+                    <div className="flex flex-col gap-4 sm:flex-row">
+                        <Input
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            minLength={6}
+                            disabled={isLoading}
+                            className="w-full"
+                        />
+                        <Input
+                            name="confirm_password"
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={formData.confirm_password}
+                            onChange={handleChange}
+                            required
+                            minLength={6}
+                            disabled={isLoading}
+                            className="w-full"
+                        />
+                    </div>
+
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Role</label>
@@ -113,7 +130,7 @@ const Register = () => {
                     />
 
                     <Button type="submit" className="w-full bg-invesa-gold hover:bg-invesa-gold/90 text-black font-semibold" disabled={isLoading}>
-                        {isLoading ? 'Creating Account...' : 'Sign Up'}
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
                 </form>
 
