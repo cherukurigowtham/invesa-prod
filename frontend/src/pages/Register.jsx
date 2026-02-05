@@ -55,7 +55,7 @@ const Register = () => {
     return (
         <div className="flex min-h-[80vh] items-center justify-center">
             <div className="w-full max-w-md p-6 rounded-lg border shadow-lg bg-card">
-                <h1 className="text-2xl font-bold mb-2 text-center text-invesa-gold">Create Account</h1>
+                <h1 className="text-2xl font-bold mb-2 text-center text-yellow-400">Create Account</h1>
                 <p className="text-sm text-muted-foreground text-center mb-6">
                     Join Invesa today
                 </p>
@@ -80,31 +80,29 @@ const Register = () => {
                         required
                         disabled={isLoading}
                     />
-                    <div className="flex flex-col gap-4 sm:flex-row">
-                        <Input
-                            name="password"
-                            type="password"
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            minLength={6}
-                            disabled={isLoading}
-                            className="w-full"
-                        />
-                        <Input
-                            name="confirm_password"
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            required
-                            minLength={6}
-                            disabled={isLoading}
-                            className="w-full"
-                        />
-                    </div>
 
+                    <Input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        minLength={6}
+                        disabled={isLoading}
+                        className="w-full"
+                    />
+                    <Input
+                        name="confirm_password"
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={formData.confirm_password}
+                        onChange={handleChange}
+                        required
+                        minLength={6}
+                        disabled={isLoading}
+                        className="w-full"
+                    />
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Role</label>
@@ -129,13 +127,13 @@ const Register = () => {
                         disabled={isLoading}
                     />
 
-                    <Button type="submit" className="w-full bg-invesa-gold hover:bg-invesa-gold/90 text-black font-semibold" disabled={isLoading}>
+                    <Button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold" disabled={isLoading}>
                         {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
                 </form>
 
                 <p className="mt-6 text-center text-sm text-muted-foreground">
-                    Already have an account? <Link to="/login" className="text-invesa-gold hover:underline">Login</Link>
+                    Already have an account? <Link to="/login" className="text-yellow-400 hover:underline">Login</Link>
                 </p>
             </div>
         </div>
