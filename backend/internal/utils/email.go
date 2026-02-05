@@ -12,7 +12,11 @@ import (
 func SendResetEmail(toEmail, token string) error {
 	smtpEmail := os.Getenv("SMTP_EMAIL")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
-	resetLink := fmt.Sprintf("https://invesa-prod-he47.vercel.app/reset-password?token=%s", token)
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "https://invesa-prod-he47.vercel.app"
+	}
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", frontendURL, token)
 
 	// Fallback to console logging if SMTP creds are missing
 	if smtpEmail == "" || smtpPassword == "" {
@@ -34,7 +38,13 @@ func SendResetEmail(toEmail, token string) error {
 		<p>If you didn't request this, please ignore this email.</p>
 	`, resetLink))
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, smtpEmail, smtpPassword)
+	host := os.Getenv("SMTP_HOST")
+	if host == "" {
+		host = "smtp.gmail.com"
+	}
+	port := 587
+
+	d := gomail.NewDialer(host, port, smtpEmail, smtpPassword)
 
 	if err := d.DialAndSend(m); err != nil {
 		log.Printf("Failed to send email: %v\n", err)
@@ -51,7 +61,11 @@ func SendResetEmail(toEmail, token string) error {
 func SendRegistrationEmail(toEmail, token string) error {
 	smtpEmail := os.Getenv("SMTP_EMAIL")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
-	registrationLink := fmt.Sprintf("https://invesa-prod-he47.vercel.app/complete-registration?token=%s", token)
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "https://invesa-prod-he47.vercel.app"
+	}
+	registrationLink := fmt.Sprintf("%s/complete-registration?token=%s", frontendURL, token)
 
 	// Fallback to console logging if SMTP creds are missing
 	if smtpEmail == "" || smtpPassword == "" {
@@ -78,7 +92,16 @@ func SendRegistrationEmail(toEmail, token string) error {
 		</div>
 	`, registrationLink))
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, smtpEmail, smtpPassword)
+	// Revised implementation below to be robust:
+	host := os.Getenv("SMTP_HOST")
+	if host == "" {
+		host = "smtp.gmail.com"
+	}
+
+	// gomail expects int for port
+	port := 587
+
+	d := gomail.NewDialer(host, port, smtpEmail, smtpPassword)
 
 	if err := d.DialAndSend(m); err != nil {
 		log.Printf("Failed to send registration email: %v\n", err)
