@@ -33,7 +33,11 @@ const Navbar = () => {
                 <div className="flex items-center gap-6">
                     {user ? (
                         <>
-                            <Link to="/post" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Post Idea</Link>
+                            <Link to="/post">
+                                <Button className="bg-primary hover:bg-primary/90 text-black font-semibold px-4 py-2 rounded-full transition-all text-sm">
+                                    Post Idea
+                                </Button>
+                            </Link>
                             <Link to="/profile" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">{user.username}</Link>
                             <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
                                 <LogOut className="h-5 w-5" />
