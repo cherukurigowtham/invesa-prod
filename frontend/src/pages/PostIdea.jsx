@@ -66,7 +66,7 @@ const PostIdea = () => {
                     />
                 </div>
 
-                <Button type="submit">Post Idea</Button>
+                <Button type="submit" className="text-black font-semibold">Post Idea</Button>
             </form>
         </div>
     );
