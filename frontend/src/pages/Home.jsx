@@ -61,6 +61,13 @@ const Home = () => {
                             <p className="mx-auto max-w-[700px] text-gray-400 md:text-lg">
                                 Discover, connect, and invest in local businesses.
                             </p>
+                            <div className="pt-4">
+                                <Link to="/post">
+                                    <Button className="bg-primary hover:bg-primary/90 text-black font-semibold px-8 py-3 rounded-full transition-all">
+                                        Post an Idea
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
