@@ -107,7 +107,7 @@ func GetIdeas(c *gin.Context) {
 }
 
 type LikeRequest struct {
-	UserID int `json:"user_id"`
+	UserID string `json:"user_id"` // UUID
 }
 
 type IdeasResponse struct {

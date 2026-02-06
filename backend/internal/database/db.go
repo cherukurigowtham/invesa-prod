@@ -67,70 +67,69 @@ func getEnv(key, fallback string) string {
 
 func CreateTables() error {
 	queries := []string{
-		// DROP deprecated tables and columns
 
-		// DROP deprecated tables and columns
-		`DROP TABLE IF EXISTS ad_campaigns`,
+		// DROP TABLES to ensure fresh start with UUIDs
+		`DROP TABLE IF EXISTS feedback CASCADE`,
+		`DROP TABLE IF EXISTS comments CASCADE`,
+		`DROP TABLE IF EXISTS idea_likes CASCADE`,
+		`DROP TABLE IF EXISTS messages CASCADE`,
+		`DROP TABLE IF EXISTS ideas CASCADE`,
+		`DROP TABLE IF EXISTS users CASCADE`,
+		`DROP TABLE IF EXISTS password_resets CASCADE`,
+		`DROP TABLE IF EXISTS registration_tokens CASCADE`,
+		`DROP TABLE IF EXISTS ad_campaigns CASCADE`,
+
+		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
 
 		`CREATE TABLE IF NOT EXISTS users (
-			id SERIAL PRIMARY KEY,
-			username VARCHAR(255) UNIQUE NOT NULL,
-			password VARCHAR(255) NOT NULL,
-			full_name VARCHAR(255) NOT NULL DEFAULT '',
-			email VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
+			id UUID PRIMARY KEY, -- Matches Supabase Auth ID
+			username VARCHAR(255) UNIQUE,
+			email VARCHAR(255) UNIQUE NOT NULL,
+			full_name VARCHAR(255) DEFAULT '',
 			bio TEXT,
 			role VARCHAR(50) NOT NULL DEFAULT 'Entrepreneur',
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`ALTER TABLE users DROP COLUMN IF EXISTS is_premium`,
+
 		`CREATE TABLE IF NOT EXISTS ideas (
 			id SERIAL PRIMARY KEY,
-			user_id INTEGER REFERENCES users(id),
+			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
 			title VARCHAR(255) NOT NULL,
 			description TEXT NOT NULL,
 			category VARCHAR(50) NOT NULL DEFAULT 'Other',
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+
 		`CREATE TABLE IF NOT EXISTS messages (
 			id SERIAL PRIMARY KEY,
-			sender_id INTEGER REFERENCES users(id),
-			receiver_id INTEGER REFERENCES users(id),
+			sender_id UUID REFERENCES users(id) ON DELETE CASCADE,
+			receiver_id UUID REFERENCES users(id) ON DELETE CASCADE,
 			content TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+
 		`CREATE TABLE IF NOT EXISTS idea_likes (
-			user_id INTEGER REFERENCES users(id),
-			idea_id INTEGER REFERENCES ideas(id),
+			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+			idea_id INTEGER REFERENCES ideas(id) ON DELETE CASCADE,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (user_id, idea_id)
 		)`,
-		`CREATE TABLE IF NOT EXISTS password_resets (
-			id SERIAL PRIMARY KEY,
-			user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-			token TEXT NOT NULL,
-			expires_at TIMESTAMP NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS registration_tokens (
-			id SERIAL PRIMARY KEY,
-			email VARCHAR(255) NOT NULL,
-			token TEXT NOT NULL UNIQUE,
-			expires_at TIMESTAMP NOT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
+
 		`CREATE TABLE IF NOT EXISTS comments (
 			id SERIAL PRIMARY KEY,
-			idea_id INTEGER REFERENCES ideas(id),
-			user_id INTEGER REFERENCES users(id),
+			idea_id INTEGER REFERENCES ideas(id) ON DELETE CASCADE,
+			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
 			content TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+
 		`CREATE TABLE IF NOT EXISTS feedback (
 			id SERIAL PRIMARY KEY,
 			email VARCHAR(255),
 			message TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+
 		`CREATE INDEX IF NOT EXISTS idx_ideas_category ON ideas(category)`,
 		`CREATE INDEX IF NOT EXISTS idx_ideas_userid ON ideas(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_likes_ideaid ON idea_likes(idea_id)`,

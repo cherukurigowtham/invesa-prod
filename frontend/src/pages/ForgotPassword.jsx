@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api';
+import { supabase } from '../supabase';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
@@ -17,10 +17,15 @@ const ForgotPassword = () => {
         setMessage('');
 
         try {
-            const response = await api.post('/forgot-password', { email });
-            setMessage(response.data.message);
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+
+            if (error) throw error;
+
+            setMessage("Password reset link sent! Check your email.");
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to process request');
+            setError(err.message || "Failed to send reset link.");
         } finally {
             setIsLoading(false);
         }
@@ -28,9 +33,9 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex min-h-[80vh] items-center justify-center">
-            <div className="w-full max-w-sm p-6 rounded-lg border shadow-lg bg-card">
-                <h1 className="text-2xl font-bold mb-2 text-center">Reset Password</h1>
-                <p className="text-sm text-center text-muted-foreground mb-6">Enter your email to receive a reset link</p>
+            <div className="w-full max-w-sm p-6 rounded-lg border shadow-lg bg-card text-card-foreground">
+                <h1 className="text-2xl font-bold mb-2 text-center text-yellow-500">Reset Password</h1>
+                <p className="text-sm text-center text-gray-400 mb-6">Enter your email to receive a reset link</p>
 
                 {message && <div className="p-3 mb-4 text-sm text-green-500 bg-green-900/10 rounded-md border border-green-900/20">{message}</div>}
                 {error && <div className="p-3 mb-4 text-sm text-red-500 bg-red-900/10 rounded-md border border-red-900/20">{error}</div>}
@@ -44,7 +49,7 @@ const ForgotPassword = () => {
                         required
                         disabled={isLoading || message}
                     />
-                    <Button type="submit" className="w-full" disabled={isLoading || message}>
+                    <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold" disabled={isLoading || message}>
                         {isLoading ? 'Sending Link...' : 'Send Reset Link'}
                     </Button>
                 </form>

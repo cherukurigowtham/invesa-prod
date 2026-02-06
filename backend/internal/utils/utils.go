@@ -22,22 +22,34 @@ func RespondWithJSON(c *gin.Context, code int, payload interface{}) {
 }
 
 // ValidatePassword checks if the password meets security requirements
-// Min 8 chars, at least one number
+// Min 8 chars, at least one number, one uppercase, and one special char
 func ValidatePassword(password string) error {
 	if len(password) < 8 {
 		return fmt.Errorf("password must be at least 8 characters long")
 	}
 
-	// Check for at least one number
 	hasNumber := false
+	hasUpper := false
+	hasSpecial := false
+
 	for _, char := range password {
 		if char >= '0' && char <= '9' {
 			hasNumber = true
-			break
+		} else if char >= 'A' && char <= 'Z' {
+			hasUpper = true
+		} else if (char >= '!' && char <= '/') || (char >= ':' && char <= '@') || (char >= '[' && char <= '`') || (char >= '{' && char <= '~') {
+			hasSpecial = true
 		}
 	}
+
 	if !hasNumber {
 		return fmt.Errorf("password must contain at least one number")
+	}
+	if !hasUpper {
+		return fmt.Errorf("password must contain at least one uppercase letter")
+	}
+	if !hasSpecial {
+		return fmt.Errorf("password must contain at least one special character")
 	}
 
 	return nil

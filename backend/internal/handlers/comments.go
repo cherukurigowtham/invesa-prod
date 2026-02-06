@@ -17,13 +17,33 @@ func CreateComment(c *gin.Context) {
 		return
 	}
 
-	_, err := database.DB.Exec(c, "INSERT INTO comments (idea_id, user_id, content) VALUES ($1, $2, $3)", ideaID, comment.UserID, comment.Content)
+	// Validate user existence (and get username)
+	var username string
+	// UserID is now UUID string from frontend (if passed) or context?
+	// The comment struct from JSON will have user_id, but better to get from Context for security.
+	// But let's assume valid ID is passed for now or override it.
+	userID, _ := c.Get("user_id")
+	comment.UserID = userID.(string)
+
+	err := database.DB.QueryRow(c, "SELECT username FROM users WHERE id=$1", comment.UserID).Scan(&username)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusBadRequest, "Invalid user")
+		return
+	}
+
+	var commentID int
+	err = database.DB.QueryRow(c, "INSERT INTO comments (idea_id, user_id, content) VALUES ($1, $2, $3) RETURNING id, created_at",
+		ideaID, comment.UserID, comment.Content).Scan(&commentID, &comment.CreatedAt)
+
 	if err != nil {
 		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to post comment")
 		return
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Comment posted successfully"})
+	comment.ID = commentID
+	comment.Username = username
+
+	utils.RespondWithJSON(c, http.StatusOK, comment)
 }
 
 func GetComments(c *gin.Context) {

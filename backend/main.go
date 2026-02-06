@@ -27,10 +27,6 @@ func main() {
 		log.Println("No .env file found, using defaults")
 	}
 
-	if err := utils.ValidateJWTSecret(); err != nil {
-		utils.LogFatal("JWT configuration error: %v", err)
-	}
-
 	// Connect to database
 	if err := database.Connect(); err != nil {
 		utils.LogFatal("Failed to connect to database: %v", err)
@@ -91,10 +87,11 @@ func main() {
 			utils.RespondWithJSON(c, http.StatusOK, gin.H{"status": "ok"})
 		})
 
-		api.POST("/register", handlers.Register) // Legacy: keep for backward compatibility
-		api.POST("/login", handlers.Login)
-		api.POST("/forgot-password", handlers.ForgotPassword)
-		api.POST("/reset-password", handlers.ResetPassword)
+		// Auth Routes (Supabase Sync)
+		api.POST("/sync-profile", middleware.RequireAuth(), handlers.SyncProfile)
+
+		// Legacy routes removed (Supabase handles them)
+		// handlers.Register, Login, etc are deleted.
 
 		api.POST("/feedback", handlers.SubmitFeedback)
 

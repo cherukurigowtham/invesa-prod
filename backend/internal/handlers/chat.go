@@ -5,7 +5,6 @@ import (
 	"invesa_backend/internal/models"
 	"invesa_backend/internal/utils"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,13 +26,15 @@ func SendMessage(c *gin.Context) {
 }
 
 func GetMessages(c *gin.Context) {
-	user1Str := c.Query("user1")
-	user2Str := c.Query("user2")
+	user1 := c.Query("user1")
+	user2 := c.Query("user2")
 	limit := parseLimit(c.Query("limit"), 50, 200)
 	offset := parseOffset(c.Query("offset"))
 
-	user1, _ := strconv.Atoi(user1Str)
-	user2, _ := strconv.Atoi(user2Str)
+	if user1 == "" || user2 == "" {
+		utils.RespondWithError(c, http.StatusBadRequest, "Missing user1 or user2")
+		return
+	}
 
 	rows, err := database.DB.Query(c, `
 		SELECT id, sender_id, receiver_id, content, created_at 
