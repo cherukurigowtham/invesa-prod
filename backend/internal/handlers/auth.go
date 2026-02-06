@@ -46,13 +46,12 @@ func Register(c *gin.Context) {
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{
 		"message": "User registered successfully",
 		"user": map[string]interface{}{
-			"id":         userID,
-			"username":   user.Username,
-			"full_name":  user.FullName,
-			"email":      user.Email,
-			"bio":        user.Bio,
-			"role":       user.Role,
-			"is_premium": false,
+			"id":        userID,
+			"username":  user.Username,
+			"full_name": user.FullName,
+			"email":     user.Email,
+			"bio":       user.Bio,
+			"role":      user.Role,
 		},
 		"token": token,
 	})
@@ -66,8 +65,8 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	err := database.DB.QueryRow(c, "SELECT id, username, password, full_name, email, role, bio, is_premium FROM users WHERE username = $1",
-		input.Username).Scan(&user.ID, &user.Username, &user.Password, &user.FullName, &user.Email, &user.Role, &user.Bio, &user.IsPremium)
+	err := database.DB.QueryRow(c, "SELECT id, username, password, full_name, email, role, bio FROM users WHERE username = $1",
+		input.Username).Scan(&user.ID, &user.Username, &user.Password, &user.FullName, &user.Email, &user.Role, &user.Bio)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusUnauthorized, "Invalid credentials")
 		return
@@ -83,13 +82,12 @@ func Login(c *gin.Context) {
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{
 		"message": "Login successful",
 		"user": map[string]interface{}{
-			"id":         user.ID,
-			"username":   user.Username,
-			"full_name":  user.FullName,
-			"email":      user.Email,
-			"bio":        user.Bio,
-			"role":       user.Role,
-			"is_premium": user.IsPremium,
+			"id":        user.ID,
+			"username":  user.Username,
+			"full_name": user.FullName,
+			"email":     user.Email,
+			"bio":       user.Bio,
+			"role":      user.Role,
 		},
 		"token": token,
 	})
@@ -203,13 +201,12 @@ func CompleteRegistration(c *gin.Context) {
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{
 		"message": "Account created successfully",
 		"user": map[string]interface{}{
-			"id":         userID,
-			"username":   input.Username,
-			"full_name":  input.FullName,
-			"email":      email,
-			"bio":        input.Bio,
-			"role":       input.Role,
-			"is_premium": false,
+			"id":        userID,
+			"username":  input.Username,
+			"full_name": input.FullName,
+			"email":     email,
+			"bio":       input.Bio,
+			"role":      input.Role,
 		},
 		"token": token,
 	})

@@ -10,7 +10,6 @@ type User struct {
 	Email     string    `json:"email"`
 	Bio       string    `json:"bio"`
 	Role      string    `json:"role"`
-	IsPremium bool      `json:"is_premium"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -40,19 +39,4 @@ type Message struct {
 	ReceiverID int       `json:"receiver_id"`
 	Content    string    `json:"content"`
 	CreatedAt  time.Time `json:"created_at"`
-}
-
-type AdCampaign struct {
-	ID           int        `json:"id"`
-	Advertiser   string     `json:"advertiser_name"`
-	ContactEmail string     `json:"contact_email"`
-	Placement    string     `json:"placement"`
-	Headline     string     `json:"headline"`
-	CtaURL       string     `json:"cta_url"`
-	Requirements string     `json:"requirements"`
-	PriceINR     int        `json:"price_inr"`
-	Status       string     `json:"status"`
-	StartsAt     *time.Time `json:"starts_at,omitempty"`
-	EndsAt       *time.Time `json:"ends_at,omitempty"`
-	CreatedAt    time.Time  `json:"created_at"`
 }

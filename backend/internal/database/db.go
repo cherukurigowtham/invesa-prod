@@ -67,6 +67,11 @@ func getEnv(key, fallback string) string {
 
 func CreateTables() error {
 	queries := []string{
+		// DROP deprecated tables and columns
+
+		// DROP deprecated tables and columns
+		`DROP TABLE IF EXISTS ad_campaigns`,
+
 		`CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
 			username VARCHAR(255) UNIQUE NOT NULL,
@@ -75,10 +80,9 @@ func CreateTables() error {
 			email VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
 			bio TEXT,
 			role VARCHAR(50) NOT NULL DEFAULT 'Entrepreneur',
-			is_premium BOOLEAN DEFAULT FALSE,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE`,
+		`ALTER TABLE users DROP COLUMN IF EXISTS is_premium`,
 		`CREATE TABLE IF NOT EXISTS ideas (
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER REFERENCES users(id),
@@ -127,29 +131,11 @@ func CreateTables() error {
 			message TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE TABLE IF NOT EXISTS ad_campaigns (
-			id SERIAL PRIMARY KEY,
-			advertiser_name VARCHAR(255) NOT NULL,
-			contact_email VARCHAR(255) NOT NULL,
-			placement VARCHAR(50) NOT NULL,
-			headline VARCHAR(255) NOT NULL DEFAULT '',
-			cta_url VARCHAR(500) NOT NULL DEFAULT '',
-			requirements TEXT NOT NULL,
-			price_inr INTEGER NOT NULL,
-			status VARCHAR(50) NOT NULL DEFAULT 'pending',
-			starts_at TIMESTAMP,
-			ends_at TIMESTAMP,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`ALTER TABLE ad_campaigns ADD COLUMN IF NOT EXISTS headline VARCHAR(255) NOT NULL DEFAULT ''`,
-		`ALTER TABLE ad_campaigns ADD COLUMN IF NOT EXISTS cta_url VARCHAR(500) NOT NULL DEFAULT ''`,
 		`CREATE INDEX IF NOT EXISTS idx_ideas_category ON ideas(category)`,
 		`CREATE INDEX IF NOT EXISTS idx_ideas_userid ON ideas(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_likes_ideaid ON idea_likes(idea_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, receiver_id, created_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`,
-		`CREATE INDEX IF NOT EXISTS idx_ads_status ON ad_campaigns(status)`,
-		`CREATE INDEX IF NOT EXISTS idx_ads_placement ON ad_campaigns(placement)`,
 	}
 
 	for _, query := range queries {

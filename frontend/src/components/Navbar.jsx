@@ -31,13 +31,9 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <Link to="/advertise" className="text-sm font-medium text-gray-300 hover:text-invesa-gold transition-colors">Advertise</Link>
                     {user ? (
                         <>
                             <Link to="/profile" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">{user.username}</Link>
-                            <Link to="/matches" className="text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-1 transition-colors text-sm">
-                                Matches <span className="bg-yellow-500 text-black text-[10px] px-1 rounded-full animate-pulse">NEW</span>
-                            </Link>
                             <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
                                 <LogOut className="h-5 w-5" />
                             </button>

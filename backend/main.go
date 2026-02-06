@@ -97,9 +97,6 @@ func main() {
 		api.POST("/reset-password", handlers.ResetPassword)
 
 		api.POST("/feedback", handlers.SubmitFeedback)
-		api.POST("/ads/quote", handlers.QuoteAd)
-		api.POST("/ads", handlers.CreateAd)
-		api.GET("/ads", handlers.ListAds)
 
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)
@@ -110,22 +107,10 @@ func main() {
 		api.POST("/messages", handlers.SendMessage)
 		api.GET("/messages", handlers.GetMessages) // ?user1=1&user2=2
 
-		protected := api.Group("/", middleware.RequireAuth())
-		{
-			protected.GET("/matches", handlers.GetMatches)
-			protected.POST("/upgrade", handlers.UpgradeToPremium) // Keep for demo
-			protected.POST("/payment/initiate", handlers.InitiatePayment)
-			protected.POST("/payment/success", handlers.VerifySuccess)
-		}
-
-		// Webhook callback (no user context, server-to-server)
-		api.POST("/payment/callback", handlers.PaymentCallback)
-
-		admin := api.Group("/admin", middleware.RequireAdmin())
-		{
-			admin.GET("/ads", handlers.AdminListAds)
-			admin.POST("/ads/:id/mark-paid", handlers.AdminMarkPaid)
-		}
+		// protected := api.Group("/", middleware.RequireAuth())
+		// {
+		// 	// Matches removed
+		// }
 	}
 
 	port := os.Getenv("PORT")

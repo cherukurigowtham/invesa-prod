@@ -7,12 +7,10 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
-import Matches from './pages/Matches';
+
 
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
-import Advertise from './pages/Advertise';
-import AdminAds from './pages/AdminAds';
 
 // GuestRoute component to prevent authenticated users from accessing auth pages
 const GuestRoute = ({ children }) => {
@@ -46,18 +44,12 @@ function App() {
               <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
 
               <Route path="/post" element={<PostIdea />} />
-              <Route path="/advertise" element={<Advertise />} />
-              <Route path="/admin/ads" element={<AdminAds />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
               } />
-              <Route path="/matches" element={
-                <ProtectedRoute>
-                  <Matches />
-                </ProtectedRoute>
-              } />
+
             </Routes>
           </main>
           <Footer />
