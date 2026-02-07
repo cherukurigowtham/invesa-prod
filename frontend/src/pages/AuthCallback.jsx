@@ -61,7 +61,9 @@ const AuthCallback = () => {
 
             } catch (err) {
                 console.error("Sync Profile Error:", err);
-                setError("Failed to sync user profile.");
+                const errorMessage = err.response?.data?.message || err.message || "Failed to sync user profile.";
+                const status = err.response?.status;
+                setError(`Sync failed (${status || 'Unknown'}): ${errorMessage}. Is the backend running?`);
             }
         }
 
