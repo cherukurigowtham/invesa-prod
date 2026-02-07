@@ -47,11 +47,14 @@ const PostIdea = () => {
                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         >
                             <option value="Other" className="bg-black text-white">Select Category</option>
-                            <option value="Tech" className="bg-black text-white">Technology</option>
-                            <option value="Health" className="bg-black text-white">Health & Wellness</option>
+                            <option value="Technology" className="bg-black text-white">Technology</option>
+                            <option value="Health & Wellness" className="bg-black text-white">Health & Wellness</option>
                             <option value="Finance" className="bg-black text-white">Finance</option>
                             <option value="Education" className="bg-black text-white">Education</option>
                             <option value="Lifestyle" className="bg-black text-white">Lifestyle</option>
+                            <option value="Food & Beverage" className="bg-black text-white">Food & Beverage</option>
+                            <option value="Art & Design" className="bg-black text-white">Art & Design</option>
+                            <option value="Retail" className="bg-black text-white">Retail</option>
                             <option value="Other" className="bg-black text-white">Other</option>
                         </select>
                         <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">

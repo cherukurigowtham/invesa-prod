@@ -82,7 +82,7 @@ const Home = () => {
 
                     {/* Filter Chips */}
                     <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                        {['All', 'Food', 'Art', 'Tech', 'Retail'].map((cat) => (
+                        {['All', 'Technology', 'Health & Wellness', 'Finance', 'Education', 'Lifestyle', 'Food & Beverage', 'Art & Design', 'Retail', 'Other'].map((cat) => (
                             <button
                                 key={cat}
                                 onClick={() => setCategory(cat)}
