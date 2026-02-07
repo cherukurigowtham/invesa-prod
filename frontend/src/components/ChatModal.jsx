@@ -8,16 +8,9 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
-    // Decide who is the other person.
-    // If I am the creator of the idea (not possible with current logic calling this modal, but let's be safe), 
-    // actually wait. This modal is opened by 'Interested User' wanting to chat with 'Founder'.
-    // So 'otherUser' is the Founder (idea.user_id).
-    // BUT the chat API needs sender/receiver.
-    // currentUser is SENDER. idea.user_id is RECEIVER.
-    // Wait, if I am the founder, I need to see messages from others. 
-    // For MVP: Simple 1-on-1 chat context is tricky without a "Conversations" list.
-    // Let's assume this Modal is ONLY for initiating/continuing chat from the Idea Card.
-    // So it's always Current User <-> Idea Creator.
+    // Safety check: if no user is logged in, don't crash, just return null or close.
+    // Ideally, the parent shouldn't render this if !currentUser, but let's be safe.
+    if (!currentUser || !idea) return null;
 
     const receiverId = idea.user_id;
 
@@ -39,7 +32,7 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
         // Simple polling
         const interval = setInterval(fetchMessages, 3000);
         return () => clearInterval(interval);
-    }, [isOpen, currentUser.id, receiverId]);
+    }, [isOpen, currentUser?.id, receiverId]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -70,19 +63,22 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-background rounded-lg shadow-lg border p-4 flex flex-col h-[500px]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+            <div
+                className="w-full max-w-md bg-background rounded-lg shadow-lg border p-4 flex flex-col h-[80vh] max-h-[600px]"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="flex justify-between items-center mb-4 border-b pb-2">
-                    <h3 className="font-semibold">Chat about "{idea.title}"</h3>
+                    <h3 className="font-semibold truncate pr-2">Chat about "{idea.title}"</h3>
                     <Button variant="ghost" onClick={onClose} size="sm">X</Button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto mb-4 space-y-2 p-2">
+                <div className="flex-1 overflow-y-auto mb-4 space-y-2 p-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                     {messages && messages.map((msg) => {
                         const isMe = msg.sender_id === currentUser.id;
                         return (
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`rounded-lg px-3 py-2 max-w-[80%] ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                <div className={`rounded-lg px-3 py-2 max-w-[85%] break-words ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                                     <p className="text-sm">{msg.content}</p>
                                 </div>
                             </div>
@@ -91,7 +87,7 @@ const ChatModal = ({ isOpen, onClose, idea, currentUser }) => {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <form onSubmit={handleSend} className="flex gap-2">
+                <form onSubmit={handleSend} className="flex gap-2 mt-auto">
                     <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
