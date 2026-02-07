@@ -5,7 +5,23 @@ import IdeaCard from '../components/IdeaCard';
 const Profile = () => {
     const [myIdeas, setMyIdeas] = useState([]);
     const [loading, setLoading] = useState(true);
-    const user = JSON.parse(localStorage.getItem('user'));
+    const [isEditing, setIsEditing] = useState(false);
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+    const [editUsername, setEditUsername] = useState(user?.username || '');
+
+    const handleUpdateProfile = async () => {
+        try {
+            const response = await api.put('/profile', { username: editUsername });
+            const updatedUser = { ...user, ...response.data.user, token: user.token }; // Keep token
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            setIsEditing(false);
+            window.dispatchEvent(new Event("storage")); // Update Navbar
+        } catch (error) {
+            console.error("Failed to update profile", error);
+            alert("Failed to update username. It might be taken.");
+        }
+    };
 
     useEffect(() => {
         const fetchMyIdeas = async () => {
@@ -36,8 +52,33 @@ const Profile = () => {
                     <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-bold text-primary">
                         {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <div className="text-center md:text-left space-y-2">
-                        <h1 className="text-3xl font-bold">{user.full_name || user.username}</h1>
+                    <div className="text-center md:text-left space-y-2 flex-1">
+                        <div className="flex items-center justify-center md:justify-start gap-3">
+                            {isEditing ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={editUsername}
+                                        onChange={(e) => setEditUsername(e.target.value)}
+                                        className="bg-transparent border-b border-white px-1 py-0.5 focus:outline-none focus:border-primary text-3xl font-bold w-48"
+                                        autoFocus
+                                    />
+                                    <button onClick={handleUpdateProfile} className="text-green-500 hover:text-green-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </button>
+                                    <button onClick={() => { setIsEditing(false); setEditUsername(user.username); }} className="text-red-500 hover:text-red-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <h1 className="text-3xl font-bold">{user.full_name || user.username}</h1>
+                                    <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-white transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                    </button>
+                                </>
+                            )}
+                        </div>
                         <p className="text-muted-foreground">@{user.username} • {user.email}</p>
                         {user.role && (
                             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">

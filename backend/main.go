@@ -89,6 +89,7 @@ func main() {
 
 		// Auth Routes (Supabase Sync)
 		api.POST("/sync-profile", middleware.RequireAuth(), handlers.SyncProfile)
+		api.PUT("/profile", middleware.RequireAuth(), handlers.UpdateProfile)
 
 		// Legacy routes removed (Supabase handles them)
 		// handlers.Register, Login, etc are deleted.

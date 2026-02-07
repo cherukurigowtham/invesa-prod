@@ -74,3 +74,45 @@ func SyncProfile(c *gin.Context) {
 		},
 	})
 }
+
+// UpdateProfile allows a logged-in user to update their profile details
+func UpdateProfile(c *gin.Context) {
+	var input struct {
+		Username string `json:"username" binding:"required,min=3,max=30"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		utils.RespondWithError(c, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+	uidStr := userID.(string)
+
+	// Update username in database
+	_, err := database.DB.Exec(context.Background(), "UPDATE users SET username = $1 WHERE id = $2", input.Username, uidStr)
+	if err != nil {
+		// specific check for unique violation would be better, but generic error for now
+		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to update profile: "+err.Error())
+		return
+	}
+
+	// Fetch updated user to return consistent data
+	var user models.User
+	err = database.DB.QueryRow(context.Background(), "SELECT id, username, email, role, full_name, avatar_url, bio FROM users WHERE id = $1", uidStr).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Role, &user.FullName, &user.AvatarURL, &user.Bio)
+
+	if err != nil {
+		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to fetch updated profile")
+		return
+	}
+
+	utils.RespondWithJSON(c, http.StatusOK, gin.H{
+		"message": "Profile updated successfully",
+		"user":    user,
+	})
+}
