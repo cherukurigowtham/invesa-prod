@@ -27,18 +27,21 @@ const Navbar = () => {
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2 cursor-default">
                     <img src="/logo.png" alt="Invesa Logo" className="h-8 w-auto" />
-                    <span className="text-xl font-bold text-white">Invesa</span>
+                    <span className="text-xl font-bold text-white hidden sm:block">Invesa</span>
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 sm:gap-6">
                     {user ? (
                         <>
                             <Link to="/post">
-                                <Button className="bg-primary hover:bg-primary/90 text-black font-semibold px-4 py-2 rounded-full transition-all text-sm">
-                                    Post Idea
+                                <Button className="bg-primary hover:bg-primary/90 text-black font-semibold px-3 py-2 sm:px-4 sm:py-2 rounded-full transition-all text-sm flex items-center gap-2">
+                                    <span className="sm:hidden">+</span>
+                                    <span className="hidden sm:inline">Post Idea</span>
                                 </Button>
                             </Link>
-                            <Link to="/profile" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">{user.username}</Link>
+                            <Link to="/profile" className="text-sm font-medium text-gray-300 hover:text-white transition-colors max-w-[100px] truncate sm:max-w-none">
+                                {user.username}
+                            </Link>
                             <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
                                 <LogOut className="h-5 w-5" />
                             </button>
