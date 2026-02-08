@@ -8,10 +8,9 @@ RUN go build -o main .
 
 # Run Stage
 FROM alpine:latest
+RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=builder /app/main .
-COPY --from=builder /app/.env . 
-# Note: copying .env is usually for local docker-compose. In real prod, secrets are injected.
 
 EXPOSE 8080
 CMD ["./main"]

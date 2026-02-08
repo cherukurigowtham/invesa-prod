@@ -114,6 +114,9 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
+		log.Println("WARNING: PORT environment variable not found, defaulting to 8080")
+	} else {
+		log.Printf("INFO: PORT environment variable found: %s", port)
 	}
 	ServerPort := ":" + port
 
