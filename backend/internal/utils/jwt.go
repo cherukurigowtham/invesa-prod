@@ -1,47 +1,50 @@
 package utils
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
 	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
-// ValidateSupabaseToken calls Supabase Auth API to verify the token
-func ValidateSupabaseToken(tokenStr string) (string, error) {
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	apiKey := os.Getenv("SUPABASE_ANON_KEY")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-	if supabaseURL == "" || apiKey == "" {
-		return "", errors.New("missing Supabase configuration")
+func getSecret() []byte {
+	if len(jwtSecret) == 0 {
+		return []byte("default-secret-change-me-in-prod")
 	}
+	return jwtSecret
+}
 
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/auth/v1/user", supabaseURL), nil)
+// GenerateToken creates a new JWT for the user
+func GenerateToken(userID string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(), // 3 days
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(getSecret())
+}
+
+// ValidateToken parses and validates the JWT
+func ValidateToken(tokenStr string) (string, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return getSecret(), nil
+	})
+
 	if err != nil {
 		return "", err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+tokenStr)
-	req.Header.Set("apikey", apiKey)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.New("invalid token")
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if userID, ok := claims["user_id"].(string); ok {
+			return userID, nil
+		}
 	}
 
-	var result struct {
-		ID string `json:"id"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
-	}
-
-	return result.ID, nil
+	return "", errors.New("invalid token claims")
 }

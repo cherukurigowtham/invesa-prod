@@ -15,7 +15,7 @@ func RequireAuth() gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-			userID, err := utils.ValidateSupabaseToken(tokenStr)
+			userID, err := utils.ValidateToken(tokenStr)
 			if err == nil && userID != "" {
 				c.Set("user_id", userID)
 				c.Next()

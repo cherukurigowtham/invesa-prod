@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
+
 import api from '../api';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -36,31 +36,7 @@ const Register = () => {
         return null;
     };
 
-    const handleSyncProfile = async (session) => {
-        try {
-            const { user } = session;
-            const { data } = await api.post('/sync-profile', {
-                email: user.email,
-                username: formData.username, // Use the form data username
-                full_name: '', // We don't ask for full name in register form yet
-                avatar_url: '',
-                role: formData.role, // Pass role
-                bio: formData.bio     // Pass bio
-            }, {
-                headers: { Authorization: `Bearer ${session.access_token}` }
-            });
 
-            localStorage.setItem('user', JSON.stringify({
-                ...data.user,
-                token: session.access_token
-            }));
-            window.dispatchEvent(new Event("storage"));
-            navigate('/', { replace: true });
-        } catch (err) {
-            console.error("Sync Profile Error:", err);
-            setError("Account created but failed to sync profile. Please login.");
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -82,39 +58,29 @@ const Register = () => {
         }
 
         try {
-            // Check username availability via backend *before* Supabase signup? 
-            // Or just try Supabase and fail? Supabase doesn't enforce unique usernames in metadata.
-            // But our backend DB enforces it.
-            // Let's assume we proceed. If backend sync fails (conflict), we handle it.
-            // Be better to check first?
-            // "Legacy" check username logic is gone. 
-            // Let's just create.
-
-            const { data, error } = await supabase.auth.signUp({
+            const { data } = await api.post('/auth/signup', {
+                username: formData.username,
                 email: formData.email,
                 password: formData.password,
-                options: {
-                    data: {
-                        username: formData.username,
-                        role: formData.role,
-                        bio: formData.bio
-                    }
-                }
+                role: formData.role,
+                bio: formData.bio
             });
 
-            if (error) throw error;
-
-            if (data.session) {
-                // Auto-login
-                await handleSyncProfile(data.session);
-            } else if (data.user) {
-                // Email confirmation required
-                setSuccessMessage("Account created! Please check your email to confirm registration.");
+            // Auto-login after signup
+            if (data.token) {
+                localStorage.setItem('user', JSON.stringify({
+                    ...data.user,
+                    token: data.token
+                }));
+                window.dispatchEvent(new Event("storage"));
+                navigate('/', { replace: true });
+            } else {
+                setSuccessMessage("Account created! Please log in.");
             }
+
         } catch (err) {
-            setError(err.message || "Registration failed");
-            // Improve: if username taken in backend sync, we might need complex handling.
-            // For now, Supabase error is primary.
+            console.error("Signup Error:", err);
+            setError(err.response?.data?.error || "Registration failed");
         } finally {
             setIsLoading(false);
         }
@@ -154,27 +120,7 @@ const Register = () => {
 
                 {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <Button
-                        type="button"
-                        onClick={() => handleSocialLogin('google')}
-                        className="w-full bg-[#db4437] hover:bg-[#c53929] text-white border-0"
-                    >
-                        Google
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={() => handleSocialLogin('github')}
-                        className="w-full bg-[#333] hover:bg-[#24292e] text-white border-0"
-                    >
-                        <Github className="mr-2 h-4 w-4" /> GitHub
-                    </Button>
-                </div>
-
-                <div className="relative mb-6">
-                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or with email</span></div>
-                </div>
+                {/* Social Login Removed */}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input

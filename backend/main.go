@@ -87,8 +87,16 @@ func main() {
 			utils.RespondWithJSON(c, http.StatusOK, gin.H{"status": "ok"})
 		})
 
-		// Auth Routes (Supabase Sync)
-		api.POST("/sync-profile", middleware.RequireAuth(), handlers.SyncProfile)
+		// Auth Routes (Custom Neon Auth)
+		auth := api.Group("/auth")
+		{
+			auth.POST("/signup", handlers.Signup)
+			auth.POST("/login", handlers.Login)
+			auth.POST("/forgot-password", handlers.ForgotPassword)
+			auth.POST("/reset-password", handlers.ResetPassword)
+		}
+
+		// User Profile Routes
 		api.PUT("/profile", middleware.RequireAuth(), handlers.UpdateProfile)
 
 		// Legacy routes removed (Supabase handles them)

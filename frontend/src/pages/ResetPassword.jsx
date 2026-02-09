@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
+
 import Button from '../components/Button';
 import Input from '../components/Input';
 
@@ -13,24 +13,13 @@ const ResetPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // Check if we have a session (Supabase handles the hash fragment token automatically)
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (!session) {
-                // If no session, it might be that the token loop hasn't finished or link is invalid.
-                // But typically, supabase-js processes the #token immediately on load if correctly initialized.
-                // We'll let them try, or show an error if update fails.
-                // Alternatively, we could redirect to login if no session found after a delay.
-            }
-        });
+        // Get token from URL query params
+        const params = new URLSearchParams(window.location.search);
+        const tokenFromUrl = params.get('token');
+        if (!tokenFromUrl) {
+            setError("Invalid or missing reset token.");
+        }
     }, []);
-
-    const validatePassword = (pwd) => {
-        if (pwd.length < 8) return "Password must be at least 8 chars long";
-        if (!/\d/.test(pwd)) return "Password must contain a number";
-        if (!/[A-Z]/.test(pwd)) return "Password must contain an uppercase letter";
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) return "Password must contain a special character";
-        return null;
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -50,21 +39,19 @@ const ResetPassword = () => {
         setError('');
         setMessage('');
 
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
         try {
-            const { error } = await supabase.auth.updateUser({
-                password: password
+            await api.post('/auth/reset-password', {
+                token: token,
+                new_password: password
             });
 
-            if (error) throw error;
-
             setMessage("Password updated successfully! Redirecting to login...");
-            // Optional: Sign out so they have to log in with new password? 
-            // Or keep them logged in. Usually better UX to keep logged in or redirect home.
-            // But let's follow the standard "Back to Login" flow for clarity.
-            await supabase.auth.signOut();
             setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
-            setError(err.message || 'Failed to update password');
+            setError(err.response?.data?.error || 'Failed to update password');
         } finally {
             setIsLoading(false);
         }

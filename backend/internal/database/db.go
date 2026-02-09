@@ -82,12 +82,17 @@ func CreateTables() error {
 		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
 
 		`CREATE TABLE IF NOT EXISTS users (
-			id UUID PRIMARY KEY, -- Matches Supabase Auth ID
+			id UUID PRIMARY KEY, -- Matches Supabase Auth ID (or self-generated)
 			username VARCHAR(255) UNIQUE,
 			email VARCHAR(255) UNIQUE NOT NULL,
+			password_hash VARCHAR(255) NOT NULL,
 			full_name VARCHAR(255) DEFAULT '',
 			bio TEXT,
 			role VARCHAR(50) NOT NULL DEFAULT 'Entrepreneur',
+			reset_token VARCHAR(255),
+			reset_token_expiry TIMESTAMP,
+			is_verified BOOLEAN DEFAULT FALSE,
+			verification_token VARCHAR(255),
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
 

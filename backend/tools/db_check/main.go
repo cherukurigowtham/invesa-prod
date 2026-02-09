@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	// Password with encoded @ -> %40
-	passwordEncoded := "Cg%408074217420"
+	// Password (New)
+	passwordEncoded := "InvesaDB2026Secure"
 	projectRef := "sidbmikcnawwqaridibp"
 
 	candidates := []struct {
@@ -36,8 +36,12 @@ func main() {
 			dsn:  fmt.Sprintf("postgres://postgres.%s:%s@aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require", projectRef, passwordEncoded),
 		},
 		{
-			name: "Direct Connection (Port 5432)",
-			dsn:  fmt.Sprintf("postgres://postgres:%s@db.%s.supabase.co:5432/postgres?sslmode=require", passwordEncoded, projectRef),
+			name: "Pooler with direct username (no suffix)",
+			dsn:  fmt.Sprintf("postgres://postgres:%s@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=disable", passwordEncoded),
+		},
+		{
+			name: "Pooler with project hostname",
+			dsn:  fmt.Sprintf("postgres://postgres.%s:%s@%s.pooler.supabase.com:6543/postgres?sslmode=disable", projectRef, passwordEncoded, projectRef),
 		},
 	}
 

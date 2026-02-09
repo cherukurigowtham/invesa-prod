@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import AuthCallback from './pages/AuthCallback'; // Add import
+
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
 
@@ -63,7 +63,7 @@ const App = () => {
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
             <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
             <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+
 
             <Route path="/post" element={<PostIdea />} />
             <Route path="/profile" element={
