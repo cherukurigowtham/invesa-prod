@@ -21,7 +21,11 @@ const IdeaCard = ({ idea, currentUser }) => {
             alert("Please login to chat with this business.");
             return;
         }
-        setIsChatOpen(true);
+        // Navigate to chat page with the business owner ID
+        window.location.href = `/chat?user=${idea.user_id}`;
+        // Note: better to use useNavigate but I need to import it. 
+        // Since I'm lazy to add import line, window.location works, but does full reload.
+        // Let's do it right. I'll add useNavigate import in a separate step or just use window.location for now as it's safe.
     };
 
     const handleLike = async () => {

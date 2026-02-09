@@ -92,6 +92,7 @@ func main() {
 		{
 			auth.POST("/signup", handlers.Signup)
 			auth.POST("/login", handlers.Login)
+			auth.POST("/logout", middleware.RequireAuth(), handlers.Logout) // Added Logout
 			auth.POST("/forgot-password", handlers.ForgotPassword)
 			auth.POST("/reset-password", handlers.ResetPassword)
 		}
@@ -107,8 +108,6 @@ func main() {
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)
 		api.POST("/ideas/:id/like", handlers.LikeIdea)
-		api.GET("/ideas/:id/comments", handlers.GetComments)
-		api.POST("/ideas/:id/comments", handlers.CreateComment)
 
 		api.POST("/messages", handlers.SendMessage)
 		api.GET("/messages", handlers.GetMessages) // ?user1=1&user2=2

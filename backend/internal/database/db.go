@@ -70,7 +70,7 @@ func CreateTables() error {
 
 		// DROP TABLES to ensure fresh start with UUIDs
 		`DROP TABLE IF EXISTS feedback CASCADE`,
-		`DROP TABLE IF EXISTS comments CASCADE`,
+
 		`DROP TABLE IF EXISTS idea_likes CASCADE`,
 		`DROP TABLE IF EXISTS messages CASCADE`,
 		`DROP TABLE IF EXISTS ideas CASCADE`,
@@ -120,11 +120,12 @@ func CreateTables() error {
 			PRIMARY KEY (user_id, idea_id)
 		)`,
 
-		`CREATE TABLE IF NOT EXISTS comments (
+		`CREATE TABLE IF NOT EXISTS activity_logs (
 			id SERIAL PRIMARY KEY,
-			idea_id INTEGER REFERENCES ideas(id) ON DELETE CASCADE,
-			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-			content TEXT NOT NULL,
+			user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+			action VARCHAR(50) NOT NULL,
+			details TEXT,
+			ip_address VARCHAR(50),
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
 
@@ -140,6 +141,8 @@ func CreateTables() error {
 		`CREATE INDEX IF NOT EXISTS idx_likes_ideaid ON idea_likes(idea_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, receiver_id, created_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_activity_logs_userid ON activity_logs(user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at)`,
 	}
 
 	for _, query := range queries {

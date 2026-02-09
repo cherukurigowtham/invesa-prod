@@ -22,6 +22,9 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	utils.LogActivity(c, msg.SenderID, "SEND_MESSAGE", "Sent a message to "+msg.ReceiverID)
+
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Message sent"})
 }
 

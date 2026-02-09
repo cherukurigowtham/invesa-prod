@@ -70,6 +70,9 @@ func Signup(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	utils.LogActivity(c, userID, "SIGNUP", "User registered")
+
 	utils.RespondWithJSON(c, http.StatusCreated, gin.H{
 		"token": token,
 		"user": gin.H{
@@ -112,6 +115,9 @@ func Login(c *gin.Context) {
 		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to generate token")
 		return
 	}
+
+	// Log activity
+	utils.LogActivity(c, userID, "LOGIN", "User logged in")
 
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{
 		"token": token,
@@ -236,4 +242,13 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}
+
+// Logout invalidates the session (log action)
+func Logout(c *gin.Context) {
+	userId, exists := c.Get("user_id")
+	if exists {
+		utils.LogActivity(c, userId.(string), "LOGOUT", "User logged out")
+	}
+	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

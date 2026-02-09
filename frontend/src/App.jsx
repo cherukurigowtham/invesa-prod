@@ -9,8 +9,7 @@ import ResetPassword from './pages/ResetPassword';
 
 import PostIdea from './pages/PostIdea';
 import Profile from './pages/Profile';
-
-
+import Chat from './pages/Chat';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -69,6 +68,11 @@ const App = () => {
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             } />
 
