@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Share2, Twitter, Linkedin, Link as LinkIcon, Check } from 'lucide-react';
 import Button from './Button';
-import ChatModal from './ChatModal';
 import api from '../api';
 
 const IdeaCard = ({ idea, currentUser }) => {
     const [likes, setLikes] = useState(idea.likes_count || 0);
     const [isLiked, setIsLiked] = useState(idea.is_liked || false);
-    const [isChatOpen, setIsChatOpen] = useState(false);
 
     // Share state
     const [isShareOpen, setIsShareOpen] = useState(false);
@@ -137,15 +135,7 @@ const IdeaCard = ({ idea, currentUser }) => {
                 </div>
             </div>
 
-            {/* Chat Modal - conditionally rendered */}
-            {isChatOpen && (
-                <ChatModal
-                    isOpen={isChatOpen}
-                    onClose={() => setIsChatOpen(false)}
-                    idea={idea}
-                    currentUser={currentUser}
-                />
-            )}
+            {/* Chat Modal Removed */}
         </div>
     );
 };
