@@ -25,7 +25,7 @@ const PostIdea = () => {
     };
 
     return (
-        <div className="container mx-auto max-w-2xl py-8">
+        <div className="container mx-auto max-w-2xl py-8 px-4">
             <h1 className="text-2xl font-bold mb-6">Post a Business Idea</h1>
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

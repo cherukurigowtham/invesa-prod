@@ -47,7 +47,7 @@ const Profile = () => {
 
     return (
         <div className="container mx-auto py-8 px-4">
-            <div className="bg-card text-card-foreground rounded-lg border shadow-sm p-8 mb-8">
+            <div className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 md:p-8 mb-8">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                     <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-bold text-primary">
                         {user.username.charAt(0).toUpperCase()}

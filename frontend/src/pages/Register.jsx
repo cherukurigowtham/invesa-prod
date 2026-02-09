@@ -113,7 +113,7 @@ const Register = () => {
     }
 
     return (
-        <div className="flex min-h-[80vh] items-center justify-center py-10">
+        <div className="flex min-h-[80vh] items-center justify-center py-10 px-4">
             <div className="w-full max-w-md p-6 rounded-lg border shadow-lg bg-card text-card-foreground">
                 <h1 className="text-2xl font-bold mb-2 text-center text-yellow-500">Create Account</h1>
                 <p className="text-sm text-gray-400 text-center mb-6">Join Invesa today</p>
