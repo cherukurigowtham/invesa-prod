@@ -124,12 +124,18 @@ const IdeaCard = ({ idea, currentUser }) => {
                         ❤️ {likes}
                     </Button>
 
-                    {showChatButton && (
+                    {currentUser && (
                         <Button
-                            onClick={handleChatClick}
+                            onClick={() => {
+                                if (currentUser.id === idea.user_id) {
+                                    window.location.href = '/chat';
+                                } else {
+                                    handleChatClick();
+                                }
+                            }}
                             className="bg-primary text-black hover:bg-yellow-400 h-8 px-4 text-sm font-medium"
                         >
-                            Chat
+                            {currentUser.id === idea.user_id ? 'Check Inbox' : 'Chat'}
                         </Button>
                     )}
                 </div>

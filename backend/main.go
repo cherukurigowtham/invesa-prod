@@ -17,6 +17,7 @@ import (
 	"invesa_backend/internal/utils"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -59,6 +60,7 @@ func main() {
 	rateLimitWindow := 1 * time.Minute
 	rateLimitCleanup := 5 * time.Minute
 	r.Use(middleware.RateLimit(120, rateLimitWindow, rateLimitCleanup))
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// CORS Setup
 	allowedOrigins := []string{
