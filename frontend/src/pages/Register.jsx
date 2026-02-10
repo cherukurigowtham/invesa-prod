@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { Github } from 'lucide-react';
+import { Github, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -21,6 +21,8 @@ const Register = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -140,24 +142,43 @@ const Register = () => {
                         required
                         disabled={isLoading}
                     />
-                    <Input
-                        name="password"
-                        type="password"
-                        placeholder="Password (Min 8, Upper, Special)"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                    />
-                    <Input
-                        name="confirm_password"
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={formData.confirm_password}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                    />
+                    <div className="relative">
+                        <Input
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password (Min 8, Upper, Special)"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            disabled={isLoading}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
+
+                    <div className="relative">
+                        <Input
+                            name="confirm_password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm Password"
+                            value={formData.confirm_password}
+                            onChange={handleChange}
+                            required
+                            disabled={isLoading}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                        >
+                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-300">Role</label>

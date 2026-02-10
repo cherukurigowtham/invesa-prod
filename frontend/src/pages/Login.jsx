@@ -4,10 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { Github, Mail } from 'lucide-react';
+import { Github, Mail, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -75,13 +76,22 @@ const Login = () => {
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
                     />
-                    <Input
-                        type="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        required
-                    />
+                    <div className="relative">
+                        <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                     <div className="flex justify-end">
                         <Link to="/forgot-password" className="text-xs text-primary hover:underline">Forgot Password?</Link>
                     </div>
