@@ -67,18 +67,6 @@ func getEnv(key, fallback string) string {
 
 func CreateTables() error {
 	queries := []string{
-
-		// DROP TABLES to ensure fresh start with UUIDs
-		`DROP TABLE IF EXISTS feedback CASCADE`,
-
-		`DROP TABLE IF EXISTS idea_likes CASCADE`,
-		`DROP TABLE IF EXISTS messages CASCADE`,
-		`DROP TABLE IF EXISTS ideas CASCADE`,
-		`DROP TABLE IF EXISTS users CASCADE`,
-		`DROP TABLE IF EXISTS password_resets CASCADE`,
-		`DROP TABLE IF EXISTS registration_tokens CASCADE`,
-		`DROP TABLE IF EXISTS ad_campaigns CASCADE`,
-
 		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
 
 		`CREATE TABLE IF NOT EXISTS users (
