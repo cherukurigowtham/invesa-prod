@@ -3,7 +3,7 @@ import { Share2, Twitter, Linkedin, Link as LinkIcon, Check, Trash2 } from 'luci
 import Button from './Button';
 import api from '../api';
 
-const IdeaCard = ({ idea, currentUser, onDelete }) => {
+const IdeaCard = ({ idea, currentUser, onDelete, showChat = true }) => {
     const [likes, setLikes] = useState(idea.likes_count || 0);
     const [isLiked, setIsLiked] = useState(idea.is_liked || false);
 
@@ -124,10 +124,10 @@ const IdeaCard = ({ idea, currentUser, onDelete }) => {
                         ❤️ {likes}
                     </Button>
 
-                    {currentUser && (
+                    {showChat && (
                         <Button
                             onClick={() => {
-                                if (currentUser.id === idea.user_id) {
+                                if (currentUser && currentUser.id === idea.user_id) {
                                     window.location.href = '/chat';
                                 } else {
                                     handleChatClick();
@@ -135,7 +135,7 @@ const IdeaCard = ({ idea, currentUser, onDelete }) => {
                             }}
                             className="bg-primary text-black hover:bg-yellow-400 h-8 px-4 text-sm font-medium"
                         >
-                            {currentUser.id === idea.user_id ? 'Check Inbox' : 'Chat'}
+                            {currentUser && currentUser.id === idea.user_id ? 'Check Inbox' : 'Chat'}
                         </Button>
                     )}
 
