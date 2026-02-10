@@ -61,6 +61,7 @@ func main() {
 	rateLimitCleanup := 5 * time.Minute
 	r.Use(middleware.RateLimit(120, rateLimitWindow, rateLimitCleanup))
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
+	r.Use(middleware.CacheControl())
 
 	// CORS Setup
 	allowedOrigins := []string{
