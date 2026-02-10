@@ -132,6 +132,14 @@ func CreateTables() error {
 		`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_activity_logs_userid ON activity_logs(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at)`,
+
+		// Migrations: Ensure columns exist if table was created before auth features
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255)`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255)`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NOT NULL DEFAULT ''`,
 	}
 
 	for _, query := range queries {

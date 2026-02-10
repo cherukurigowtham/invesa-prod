@@ -15,8 +15,6 @@ const api = axios.create({
     timeout: 10000,
 });
 
-console.log('API Base URL:', baseUrl);
-
 api.interceptors.request.use((config) => {
     const rawUser = localStorage.getItem('user');
     if (rawUser) {
