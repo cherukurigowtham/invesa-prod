@@ -42,20 +42,6 @@ const Login = () => {
         }
     };
 
-    const handleSocialLogin = async (provider) => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: provider,
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`
-                }
-            });
-            if (error) throw error;
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
     useEffect(() => {
         if (localStorage.getItem('user')) {
             navigate('/', { replace: true });

@@ -25,9 +25,12 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchMyIdeas = async () => {
-            if (!user) return;
+            if (!user) {
+                navigate('/login');
+                return;
+            }
+
             try {
-                // Using the main ideas endpoint with a user_id filter
                 const response = await api.get(`/ideas?user_id=${user.id}`);
                 const items = response.data?.items ?? response.data ?? [];
                 setMyIdeas(items);
@@ -37,8 +40,9 @@ const Profile = () => {
                 setLoading(false);
             }
         };
+
         fetchMyIdeas();
-    }, [user?.id]);
+    }, [user, navigate]);
 
     const handleDelete = async (ideaId) => {
         if (!window.confirm("Are you sure you want to delete this idea? This cannot be undone.")) {

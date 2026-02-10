@@ -15,6 +15,22 @@ const Chat = () => {
     const navigate = useNavigate();
     const messagesEndRef = useRef(null);
 
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const fetchConversations = async () => {
+        try {
+            // Fetch all messages involving current user to group them
+            // This is inefficient but works without a dedicated endpoint
+            const response = await api.get(`/messages?user1=${currentUser.id}&user2=${currentUser.id}&limit=500`);
+            setLoading(false);
+        } catch (error) {
+            console.error("Failed to fetch conversations", error);
+            setLoading(false);
+        }
+    };
+
     // Initial load: fetch all messages to build conversation list
     useEffect(() => {
         if (!currentUser) {
@@ -60,43 +76,6 @@ const Chat = () => {
         const interval = setInterval(fetchMessages, 3000); // Poll every 3s
         return () => clearInterval(interval);
     }, [selectedUser, currentUser.id]);
-
-    const fetchConversations = async () => {
-        try {
-            // Fetch all messages involving current user to group them
-            // This is inefficient but works without a dedicated endpoint
-            // A better way: Backend endpoint /api/conversations
-            // For MVP: We fetch "all" (limit high) and client-side group.
-            const response = await api.get(`/messages?user1=${currentUser.id}&user2=${currentUser.id}&limit=500`);
-            // Wait, existing endpoint filters by user1 AND user2? 
-            // Step 662: WHERE (sender_id = $1 AND receiver_id = $2) OR ...
-            // That endpoint requires TWO users. It cannot "list all my chats".
-
-            // PROBLEM: We need an endpoint to "list my conversations".
-            // Since we can't easily change backend right now without more files, 
-            // AND the user wants "Implement chat feature", implies UI.
-
-            // Workaround: 
-            // 1. If we came from IdeaCard, we have a target user.
-            // 2. If we just open /chat, we show "No chats". 
-            // 3. We really strictly need a backend change to list conversations.
-
-            // Let's modify the backend `GetMessages` to handle "only one user param" -> list all messages?
-            // Or add `GetConversations`.
-
-            // Let's stick to the UI for now. If no conversations endpoint, 
-            // we can only chat if we know who we are chatting with (via IdeaCard).
-
-            setLoading(false);
-        } catch (error) {
-            console.error("Failed to fetch conversations", error);
-            setLoading(false);
-        }
-    };
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
 
     const handleSend = async (e) => {
         e.preventDefault();

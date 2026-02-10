@@ -1,21 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import api from '../api';
 
 import Button from '../components/Button';
 import Input from '../components/Input';
 
 const ResetPassword = () => {
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const token = searchParams.get('token');
+
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+
+    const validatePassword = (pwd) => {
+        if (pwd.length < 8) return "Password must be at least 8 chars long";
+        if (!/\d/.test(pwd)) return "Password must contain a number";
+        if (!/[A-Z]/.test(pwd)) return "Password must contain an uppercase letter";
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) return "Password must contain a special character";
+        return null;
+    };
 
     useEffect(() => {
         // Get token from URL query params
-        const params = new URLSearchParams(window.location.search);
-        const tokenFromUrl = params.get('token');
         if (!tokenFromUrl) {
             setError("Invalid or missing reset token.");
         }

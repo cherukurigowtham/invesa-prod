@@ -18,7 +18,6 @@ const Register = () => {
         bio: ''
     });
     const [error, setError] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -38,13 +37,10 @@ const Register = () => {
         return null;
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        setSuggestions([]);
 
         if (formData.password !== formData.confirm_password) {
             setError("Passwords do not match");
@@ -88,20 +84,6 @@ const Register = () => {
         }
     };
 
-    const handleSocialLogin = async (provider) => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: provider,
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`
-                }
-            });
-            if (error) throw error;
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
     if (successMessage) {
         return (
             <div className="flex min-h-[80vh] items-center justify-center">
@@ -115,7 +97,7 @@ const Register = () => {
     }
 
     return (
-        <div className="flex min-h-[80vh] items-center justify-center py-10 px-4">
+        <div className="flex min-h-[80vh] items-center justify-center py-10 px-4" >
             <div className="w-full max-w-md p-6 rounded-lg border shadow-lg bg-card text-card-foreground">
                 <h1 className="text-2xl font-bold mb-2 text-center text-yellow-500">Create Account</h1>
                 <p className="text-sm text-gray-400 text-center mb-6">Join Invesa today</p>
@@ -212,7 +194,7 @@ const Register = () => {
                     Already have an account? <Link to="/login" className="text-yellow-500 hover:underline font-medium">Login</Link>
                 </p>
             </div>
-        </div>
+        </div >
     );
 };
 
