@@ -37,9 +37,22 @@ const Profile = () => {
                 setLoading(false);
             }
         };
-
         fetchMyIdeas();
     }, [user?.id]);
+
+    const handleDelete = async (ideaId) => {
+        if (!window.confirm("Are you sure you want to delete this idea? This cannot be undone.")) {
+            return;
+        }
+
+        try {
+            await api.delete(`/ideas/${ideaId}`);
+            setMyIdeas(prev => prev.filter(idea => idea.id !== ideaId));
+        } catch (error) {
+            console.error("Failed to delete idea:", error);
+            alert("Failed to delete idea.");
+        }
+    };
 
     if (!user) {
         return <div className="container mx-auto py-8 text-center">Please login to view your profile.</div>;
@@ -102,7 +115,7 @@ const Profile = () => {
             ) : myIdeas.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {myIdeas.map((idea) => (
-                        <IdeaCard key={idea.id} idea={idea} currentUser={user} />
+                        <IdeaCard key={idea.id} idea={idea} currentUser={user} onDelete={handleDelete} />
                     ))}
                 </div>
             ) : (

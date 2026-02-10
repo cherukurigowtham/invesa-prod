@@ -109,6 +109,7 @@ func main() {
 
 		api.GET("/ideas", handlers.GetIdeas)
 		api.POST("/ideas", handlers.CreateIdea)
+		api.DELETE("/ideas/:id", middleware.RequireAuth(), handlers.DeleteIdea)
 		api.POST("/ideas/:id/like", handlers.LikeIdea)
 
 		api.POST("/messages", handlers.SendMessage)

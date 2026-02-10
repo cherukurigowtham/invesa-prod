@@ -195,3 +195,38 @@ func clearIdeasCache() {
 	defer ideasCacheMu.Unlock()
 	ideasCache = map[string]ideasCacheEntry{}
 }
+func DeleteIdea(c *gin.Context) {
+	ideaID := c.Param("id")
+	userID, exists := c.Get("user_id")
+	if !exists {
+		utils.RespondWithError(c, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Verify ownership
+	var ownerID string
+	err := database.DB.QueryRow(c, "SELECT user_id FROM ideas WHERE id=$1", ideaID).Scan(&ownerID)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusNotFound, "Idea not found")
+		return
+	}
+
+	if ownerID != userID.(string) {
+		utils.RespondWithError(c, http.StatusForbidden, "You can only delete your own ideas")
+		return
+	}
+
+	// Delete
+	_, err = database.DB.Exec(c, "DELETE FROM ideas WHERE id=$1", ideaID)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to delete idea")
+		return
+	}
+
+	// Log activity
+	utils.LogActivity(c, userID.(string), "DELETE_IDEA", "Deleted idea "+ideaID)
+
+	clearIdeasCache()
+
+	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Idea deleted successfully"})
+}

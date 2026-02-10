@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Share2, Twitter, Linkedin, Link as LinkIcon, Check } from 'lucide-react';
+import { Share2, Twitter, Linkedin, Link as LinkIcon, Check, Trash2 } from 'lucide-react';
 import Button from './Button';
 import api from '../api';
 
-const IdeaCard = ({ idea, currentUser }) => {
+const IdeaCard = ({ idea, currentUser, onDelete }) => {
     const [likes, setLikes] = useState(idea.likes_count || 0);
     const [isLiked, setIsLiked] = useState(idea.is_liked || false);
 
@@ -137,6 +137,16 @@ const IdeaCard = ({ idea, currentUser }) => {
                         >
                             {currentUser.id === idea.user_id ? 'Check Inbox' : 'Chat'}
                         </Button>
+                    )}
+
+                    {onDelete && currentUser && currentUser.id === idea.user_id && (
+                        <button
+                            onClick={() => onDelete(idea.id)}
+                            className="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
+                            title="Delete Idea"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
                     )}
                 </div>
             </div>
