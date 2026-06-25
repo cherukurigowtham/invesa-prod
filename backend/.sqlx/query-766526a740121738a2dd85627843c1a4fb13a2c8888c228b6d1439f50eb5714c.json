@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                            INSERT INTO team_messages (idea_id, sender_id, message)\n                            VALUES ($1, $2, $3)\n                            RETURNING id, idea_id, sender_id, message, created_at\n                            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "sender_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "766526a740121738a2dd85627843c1a4fb13a2c8888c228b6d1439f50eb5714c"
+}

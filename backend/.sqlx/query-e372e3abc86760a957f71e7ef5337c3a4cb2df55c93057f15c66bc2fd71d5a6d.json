@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, sender_id, idea_id AS receiver_id, message, created_at\n            FROM team_messages\n            WHERE idea_id = $1\n            ORDER BY created_at ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "sender_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "receiver_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e372e3abc86760a957f71e7ef5337c3a4cb2df55c93057f15c66bc2fd71d5a6d"
+}

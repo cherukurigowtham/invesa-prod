@@ -22,21 +22,52 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [chatSearch, setChatSearch] = useState('');
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
+  const [typingUserName, setTypingUserName] = useState('');
 
   const socketRef = useRef<WebSocket | null>(null);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Simulates partner typing indicator on partner switch
+  // Keep track of typing states
+  const lastTypingStateRef = useRef(false);
+
+  const sendTypingEvent = (isTyping: boolean) => {
+    if (!activePartner || !wsConnected || !socketRef.current || !user) return;
+    if (lastTypingStateRef.current === isTyping) return; // Prevent redundant messages
+
+    lastTypingStateRef.current = isTyping;
+    const payload = {
+      receiverId: activePartner.id,
+      message: JSON.stringify({ event: 'typing', isTyping, senderName: user.name })
+    };
+    if (socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify(payload));
+    }
+  };
+
+  // Trigger typing events when typedMessage changes
   useEffect(() => {
-    if (!activePartner) {
-      setIsPartnerTyping(false);
+    if (!activePartner || !user || !wsConnected || !socketRef.current) {
       return;
     }
-    setIsPartnerTyping(true);
-    const timer = setTimeout(() => {
-      setIsPartnerTyping(false);
-    }, 2000);
-    return () => clearTimeout(timer);
+
+    if (typedMessage.trim().length > 0) {
+      sendTypingEvent(true);
+      
+      const timer = setTimeout(() => {
+        sendTypingEvent(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    } else {
+      sendTypingEvent(false);
+    }
+  }, [typedMessage]);
+
+  // Reset typing state on switching partner
+  useEffect(() => {
+    sendTypingEvent(false);
+    setIsPartnerTyping(false);
+    setTypingUserName('');
   }, [activePartner]);
 
   // Authenticate user
@@ -165,6 +196,20 @@ export default function Chat() {
               const eventData = JSON.parse(incomingMsg.message);
               if (eventData.event === 'tasks_changed') {
                 window.dispatchEvent(new CustomEvent('invesa_task_update', { detail: eventData }));
+              } else if (eventData.event === 'typing') {
+                const currentPartner = activePartnerRef.current;
+                if (currentPartner) {
+                  if (currentPartner.role !== 'channel' && incomingMsg.senderId === currentPartner.id) {
+                    setIsPartnerTyping(eventData.isTyping);
+                  } else if (currentPartner.role === 'channel' && incomingMsg.receiverId === currentPartner.id) {
+                    if (eventData.isTyping) {
+                      setIsPartnerTyping(true);
+                      setTypingUserName(eventData.senderName || 'Someone');
+                    } else {
+                      setIsPartnerTyping(false);
+                    }
+                  }
+                }
               }
             } catch (e) {
               console.error('Failed to parse websocket event message:', e);
@@ -340,12 +385,13 @@ export default function Chat() {
           <div className={`${!activePartner ? 'hidden md:flex' : 'flex'} md:col-span-8 flex-col justify-between min-h-[400px]`}>
             {activePartner ? (
               <>
-                <MessageThread
+                 <MessageThread
                   activePartner={activePartner}
                   activeProject={activeProject}
                   messages={messages}
                   user={user}
                   isPartnerTyping={isPartnerTyping}
+                  typingUserName={typingUserName}
                   messageEndRef={messageEndRef}
                   getSenderInfo={getSenderInfo}
                   getRoleAccent={getRoleAccent}

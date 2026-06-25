@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE tasks\n        SET title = $1, description = $2, status = $3, assignee_id = $4, due_date = $5, position = $6, updated_at = CURRENT_TIMESTAMP\n        WHERE id = $7 AND idea_id = $8\n        RETURNING id, idea_id, title, description, status, assignee_id, creator_id, due_date, position, created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "assignee_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "creator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "due_date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "position",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Varchar",
+        "Uuid",
+        "Timestamptz",
+        "Int4",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c10c490dca509431500a2db345d190c61db0bdcaf67b761a3e4ae506bbf69185"
+}

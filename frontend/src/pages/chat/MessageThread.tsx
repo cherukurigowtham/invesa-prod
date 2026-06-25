@@ -14,6 +14,7 @@ interface MessageThreadProps {
   messages: ChatMessage[];
   user: User | null;
   isPartnerTyping: boolean;
+  typingUserName?: string;
   messageEndRef: RefObject<HTMLDivElement | null>;
   getSenderInfo: (senderId: string) => { name: string; role: string };
   getRoleAccent: (role: string) => string;
@@ -26,6 +27,7 @@ export default function MessageThread({
   messages,
   user,
   isPartnerTyping,
+  typingUserName,
   messageEndRef,
   getSenderInfo,
   getRoleAccent,
@@ -109,7 +111,7 @@ export default function MessageThread({
         {isPartnerTyping && (
           <div className="flex items-center gap-1.5 px-1 py-1 animate-pulse">
             <span className="text-[10px] text-white/40 italic">
-              {activePartner.role === 'channel' ? 'Someone' : activePartner.name} is typing
+              {activePartner.role === 'channel' ? (typingUserName || 'Someone') : activePartner.name} is typing
             </span>
             <div className="flex gap-0.5 items-center mt-0.5">
               <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:-0.3s]" />

@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT i.id AS idea_id, i.title AS name, i.created_at AS last_message_time\n        FROM ideas i\n        JOIN team_members tm ON i.id = tm.idea_id\n        WHERE tm.user_id = $1\n        ORDER BY i.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "last_message_time",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "97117b4fdf2457348c836ed993af66b6e88f4553ef108b4b13011c2364169c22"
+}

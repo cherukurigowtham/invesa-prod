@@ -1653,6 +1653,46 @@ async fn handle_socket(socket: WebSocket, user_id: Uuid, pool: PgPool) {
                         }
                     };
 
+                    if payload.message.starts_with("{\"event\":\"typing\"") {
+                        let chat_msg = ChatMessage {
+                            id: Uuid::new_v4(),
+                            sender_id: user_id,
+                            receiver_id: payload.receiver_id,
+                            message: payload.message.clone(),
+                            created_at: chrono::Utc::now(),
+                        };
+
+                        let is_idea = sqlx::query!("SELECT founder_id FROM ideas WHERE id = $1", payload.receiver_id)
+                            .fetch_optional(&pool_clone)
+                            .await
+                            .unwrap_or(None);
+
+                        if is_idea.is_some() {
+                            let teammates = sqlx::query!(
+                                "SELECT user_id FROM team_members WHERE idea_id = $1",
+                                payload.receiver_id
+                            )
+                            .fetch_all(&pool_clone)
+                            .await
+                            .unwrap_or_default();
+
+                            let peers = get_active_peers().read().await;
+                            for tm in teammates {
+                                if tm.user_id != user_id {
+                                    if let Some(peer_tx) = peers.get(&tm.user_id) {
+                                        let _ = peer_tx.send(chat_msg.clone());
+                                    }
+                                }
+                            }
+                        } else {
+                            let peers = get_active_peers().read().await;
+                            if let Some(receiver_tx) = peers.get(&payload.receiver_id) {
+                                let _ = receiver_tx.send(chat_msg);
+                            }
+                        }
+                        continue;
+                    }
+
                     // Check if receiver_id is a project channel (idea_id)
                     let is_idea = sqlx::query!("SELECT founder_id FROM ideas WHERE id = $1", payload.receiver_id)
                         .fetch_optional(&pool_clone)
