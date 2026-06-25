@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH last_msgs AS (\n            SELECT DISTINCT ON (\n                CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END\n            )\n            id,\n            sender_id,\n            receiver_id,\n            message,\n            created_at,\n            CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AS partner_id\n            FROM chat_messages\n            WHERE sender_id = $1 OR receiver_id = $1\n            ORDER BY partner_id, created_at DESC\n        )\n        SELECT \n            u.id AS user_id,\n            u.name,\n            u.role,\n            lm.message AS \"last_message?\",\n            lm.created_at AS \"last_message_time?\"\n        FROM last_msgs lm\n        JOIN users u ON u.id = lm.partner_id\n        ORDER BY lm.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "role",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_message?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_message_time?",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c816dd0672a082804be6435e4f2a0986edc978694a0867c53ddf55d025770fe0"
+}

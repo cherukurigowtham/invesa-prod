@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT jr.id, jr.idea_id, jr.builder_id, u.name as builder_name, COALESCE(u.skills, '{}') as \"builder_skills!\", jr.message, jr.status, jr.created_at, i.title as idea_title\n            FROM join_requests jr\n            JOIN users u ON jr.builder_id = u.id\n            JOIN ideas i ON jr.idea_id = i.id\n            WHERE i.founder_id = $1 AND jr.status = 'pending'\n            ORDER BY jr.created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "builder_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "builder_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "builder_skills!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "idea_title",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1be6cd5d9023e13ac712a5ca6d15cce1fd21f0dff0fcbbab62bb08c32b8b247a"
+}

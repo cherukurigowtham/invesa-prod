@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT ii.id, ii.idea_id, ii.investor_id, u.name as investor_name, ii.note, ii.created_at\n            FROM investor_interests ii\n            JOIN users u ON ii.investor_id = u.id\n            JOIN ideas i ON ii.idea_id = i.id\n            WHERE i.founder_id = $1\n            ORDER BY ii.created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "investor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "investor_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "note",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a06bc30c098049d231832c5c678230eaf06319c7d4005986b32ae4957b303534"
+}

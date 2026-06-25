@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, user_id, idea_id, title, pre_money_valuation, raise_amount, \n               option_pool_percent, co_founder_percent, \n               series_a_valuation, series_a_raise, series_a_option_pool, created_at\n        FROM saved_simulations\n        WHERE user_id = $1\n        ORDER BY created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "idea_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "pre_money_valuation",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "raise_amount",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 6,
+        "name": "option_pool_percent",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 7,
+        "name": "co_founder_percent",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 8,
+        "name": "series_a_valuation",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 9,
+        "name": "series_a_raise",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 10,
+        "name": "series_a_option_pool",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b11f4ce14e6ae6f614452c9be86d2aa94d61f2bb6fb5ff116a8f6ce60f8c2c6c"
+}
