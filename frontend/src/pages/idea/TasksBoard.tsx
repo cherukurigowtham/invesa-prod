@@ -40,6 +40,7 @@ export default function TasksBoard({ idea }: TasksBoardProps) {
   const [createColumn, setCreateColumn] = useState('todo');
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeDragOverCol, setActiveDragOverCol] = useState<string | null>(null);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -189,6 +190,50 @@ export default function TasksBoard({ idea }: TasksBoardProps) {
     }
   };
 
+  // Drag and Drop Handlers
+  const handleDragStart = (e: React.DragEvent, task: Task) => {
+    e.dataTransfer.setData('text/plain', task.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragEnter = (e: React.DragEvent, colId: string) => {
+    e.preventDefault();
+    setActiveDragOverCol(colId);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetStatus: string) => {
+    e.preventDefault();
+    setActiveDragOverCol(null);
+    const taskId = e.dataTransfer.getData('text/plain');
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || task.status === targetStatus) return;
+
+    // Optimistically update status in UI
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: targetStatus } : t));
+
+    try {
+      const payload = {
+        title: task.title,
+        description: task.description,
+        status: targetStatus,
+        assigneeId: task.assigneeId,
+        dueDate: task.dueDate,
+        position: tasks.filter(t => t.status === targetStatus).length,
+      };
+
+      const updated = await apiService.updateTask(idea.id, task.id, payload);
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
+    } catch (err) {
+      console.error('Failed to move task status:', err);
+      loadTasks(); // Revert on failure
+    }
+  };
+
   // Find assignee name or initials
   const getAssigneeInfo = (id: string | null | undefined) => {
     if (!id) return null;
@@ -264,7 +309,18 @@ export default function TasksBoard({ idea }: TasksBoardProps) {
           const colTasks = filteredTasks.filter(t => t.status === col.id);
           
           return (
-            <div key={col.id} className="flex flex-col bg-white/[0.01] border border-white/5 rounded-2xl p-3 min-h-[400px]">
+            <div 
+              key={col.id} 
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, col.id)}
+              onDragLeave={() => setActiveDragOverCol(null)}
+              onDrop={(e) => handleDrop(e, col.id)}
+              className={`flex flex-col border rounded-2xl p-3 min-h-[400px] transition-all duration-200 ${
+                activeDragOverCol === col.id 
+                  ? 'bg-white/[0.04] border-indigo-500/30 scale-[1.01] shadow-lg shadow-indigo-500/5' 
+                  : 'bg-white/[0.01] border-white/5'
+              }`}
+            >
               
               {/* Column Header */}
               <div className={`flex items-center justify-between pb-3 mb-3 border-b border-white/5 ${col.color.split(' ')[1]}`}>
@@ -292,7 +348,10 @@ export default function TasksBoard({ idea }: TasksBoardProps) {
                       <div
                         key={task.id}
                         onClick={() => handleOpenDetail(task)}
-                        className={`group relative bg-white/[0.02] hover:bg-white/[0.04] border rounded-xl p-3 flex flex-col gap-2.5 transition-all duration-200 cursor-pointer ${
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, task)}
+                        onDragEnd={() => setActiveDragOverCol(null)}
+                        className={`group relative bg-white/[0.02] hover:bg-white/[0.04] border rounded-xl p-3 flex flex-col gap-2.5 transition-all duration-200 cursor-grab active:cursor-grabbing active:scale-[0.97] active:rotate-[1deg] ${
                           overdue ? 'border-red-500/30 hover:border-red-500/40 bg-red-500/[0.02]' : 'border-white/10 hover:border-white/20'
                         }`}
                       >
