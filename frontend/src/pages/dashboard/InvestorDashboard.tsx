@@ -123,7 +123,7 @@ export default function InvestorDashboard() {
             {activeTab === 'overview' ? (
               <div className="space-y-8">
                 <QuickActions density={density} />
-                <DashboardStats density={density} />
+                <DashboardStats user={user} dashboardData={dashboardData} density={density} />
                 <InvestorView 
                   dashboardData={dashboardData} 
                   loading={loading} 
