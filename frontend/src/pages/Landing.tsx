@@ -146,7 +146,7 @@ export default function Landing() {
         
         {/* HERO SECTION */}
         <motion.div 
-          className="text-center max-w-4xl mx-auto mb-16 sm:mb-24"
+          className="text-center max-w-4xl mx-auto pt-24 sm:pt-[200px] mb-16 sm:mb-24"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
