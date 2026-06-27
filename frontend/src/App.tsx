@@ -130,6 +130,7 @@ function AppLayout() {
         <main
           id="main-content"
           className={`flex-1 flex flex-col min-w-0 ${showSidebar ? 'app-main-content' : ''}`}
+          style={{ minHeight: 'calc(100vh - 52px)' }}
         >
           <Suspense fallback={<RouteLoader />}>
             <Routes>
@@ -247,10 +248,9 @@ function AppLayout() {
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            {/* Footer inside Suspense — renders only after page content resolves, preventing CLS */}
+            {!showSidebar && <Footer />}
           </Suspense>
-
-          {/* Footer only on non-sidebar pages */}
-          {!showSidebar && <Footer />}
         </main>
       </div>
 
