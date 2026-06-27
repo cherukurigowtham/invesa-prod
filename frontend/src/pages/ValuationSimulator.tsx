@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import { apiService, type SavedSimulation, type User } from '../shared/lib/api';
 import { PieChart, Save, Trash, Lock, Bookmark, Sliders, Info, HelpCircle, FileDown, ShieldAlert, TrendingDown } from 'lucide-react';
 import { useToast } from '../shared/components/Toast';
-import { jsPDF } from 'jspdf';
 
 // ── Modular sub-components ────────────────────────────────────────────────────
 import PresetsPanel from './valuation/PresetsPanel';
@@ -152,8 +151,10 @@ export default function ValuationSimulator({ isSubComponent = false }: { isSubCo
     setRedistributeUnvested(sim.redistributeUnvested ?? false);
   };
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
     try {
+      // Dynamically import jsPDF only when user explicitly clicks "Export PDF"
+      const { jsPDF } = await import('jspdf');
       const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'pt',

@@ -22,15 +22,6 @@ import PostComposer from '../shared/components/PostComposer';
 import { useToast } from '../shared/components/Toast';
 import { MessageSquare } from 'lucide-react';
 import { useRef } from 'react';
-import mermaid from 'mermaid';
-import { jsPDF } from 'jspdf';
-
-// Initialize mermaid
-mermaid.initialize({
-  startOnLoad: true,
-  theme: 'dark',
-  securityLevel: 'loose',
-});
 
 const getCategoryMermaidChart = (category: string, title: string): string => {
   const cleanTitle = title.replace(/[^a-zA-Z0-9 ]/g, "");
@@ -66,13 +57,16 @@ function Mermaid({ chart }: { chart: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.removeAttribute('data-processed');
-      // Render asynchronously
-      mermaid.run({
-        nodes: [ref.current]
-      }).catch(err => console.error("Mermaid run failed:", err));
-    }
+    if (!ref.current) return;
+    // Dynamically load mermaid only when the diagram component mounts
+    import('mermaid').then((mod) => {
+      const m = mod.default;
+      m.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+      ref.current!.removeAttribute('data-processed');
+      m.run({ nodes: [ref.current!] }).catch((err) =>
+        console.error('Mermaid run failed:', err)
+      );
+    });
   }, [chart]);
 
   return (
@@ -344,9 +338,11 @@ export default function IdeaDetail() {
     }
   };
 
-  const handleDownloadCertificate = () => {
+  const handleDownloadCertificate = async () => {
     if (!idea) return;
     try {
+      // Dynamically import jsPDF only when user explicitly requests the PDF
+      const { jsPDF } = await import('jspdf');
       const doc = new jsPDF({
         orientation: 'landscape',
         unit: 'pt',
