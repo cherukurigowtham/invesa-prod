@@ -31,12 +31,34 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
 
+    <!-- Google Fonts: preconnect for speed, then async load with font-display=swap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Preload the most-used font weight first to avoid FOIT -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    </noscript>
     <!-- Performance: DNS prefetch & preconnect for backend API -->
     <link rel="preconnect" href="https://invesa-backend.onrender.com" crossorigin />
     <link rel="dns-prefetch" href="https://invesa-backend.onrender.com" />
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      Pre-seed the root background so there's no white→dark flash (CLS).
+      React replaces this div's content but the bg is already set.
+    -->
+    <div id="root" style="background:#202124;min-height:100vh;color:#fff;"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

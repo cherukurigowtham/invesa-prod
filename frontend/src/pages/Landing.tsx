@@ -10,13 +10,13 @@ export default function Landing() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 }
+      transition: { staggerChildren: 0.12 }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.4 } }
   };
 
   const steps = [
@@ -137,7 +137,7 @@ export default function Landing() {
   ];
 
   return (
-    <div className="relative overflow-hidden bg-surface-default pt-24 sm:pt-32 pb-16">
+    <div className="relative overflow-hidden bg-surface-default pt-[52px] pb-16" style={{ contain: 'layout' }}>
       
       {/* Grid Pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:32px_32px] -z-20 noise" />
@@ -147,9 +147,10 @@ export default function Landing() {
         {/* HERO SECTION */}
         <motion.div 
           className="text-center max-w-4xl mx-auto mb-16 sm:mb-24"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          style={{ willChange: 'opacity' }}
         >
  
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
@@ -177,7 +178,8 @@ export default function Landing() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: '-50px' }}
+          style={{ willChange: 'opacity' }}
         >
           <motion.div className="glass p-6 text-center border-l-4 border-indigo-500" variants={itemVariants}>
             <div className="text-3xl sm:text-4xl font-extrabold text-white mb-2">1,240+</div>
