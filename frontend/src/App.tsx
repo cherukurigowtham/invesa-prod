@@ -24,7 +24,12 @@ const Matchmaker = lazy(() => import('./pages/Matchmaker'));
 const Chat = lazy(() => import('./pages/Chat'));
 
 // Sleek glassmorphic Loading fallback UI
-function RouteLoader() {
+function RouteLoader({ invisible = false }: { invisible?: boolean }) {
+  if (invisible) {
+    // Invisible placeholder — preserves layout without painting a visible element.
+    // Lighthouse FCP then captures the first real content paint instead of a spinner.
+    return <div className="flex-1" style={{ minHeight: 'calc(100vh - 52px)' }} aria-hidden="true" />;
+  }
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[60vh] animate-pulse">
       <div className="w-12 h-12 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin mb-4" />
@@ -132,7 +137,7 @@ function AppLayout() {
           className={`flex-1 flex flex-col min-w-0 ${showSidebar ? 'app-main-content' : ''}`}
           style={{ minHeight: 'calc(100vh - 52px)' }}
         >
-          <Suspense fallback={<RouteLoader />}>
+          <Suspense fallback={<RouteLoader invisible={isShellPage} />}>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Auth />} />
