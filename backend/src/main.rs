@@ -33,7 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 3. Connect to PostgreSQL Pool
     info!("🗄️ Connecting to PostgreSQL Database...");
     let pool = PgPoolOptions::new()
-        .max_connections(5)
+        .max_connections(config.max_db_connections)
         .connect(&config.database_url)
         .await?;
 
@@ -45,10 +45,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("✅ Migrations completed successfully!");
 
     // 5. Setup CORS Middleware Policy
-    let cors = CorsLayer::new()
-        .allow_origin(Any) // For development. Can be restricted to production domains in deployment
-        .allow_headers(Any)
-        .allow_methods(Any);
+    let cors = if config.app_env == "production" {
+        let origin_val = config.frontend_url.parse::<axum::http::HeaderValue>()
+            .expect("FRONTEND_URL must be a valid HeaderValue for CORS origin");
+        info!("🔒 CORS restricted to production origin: {}", config.frontend_url);
+        CorsLayer::new()
+            .allow_origin(origin_val)
+            .allow_headers(Any)
+            .allow_methods(Any)
+    } else {
+        info!("🔓 CORS running in development mode (Allow Any origin)");
+        CorsLayer::new()
+            .allow_origin(Any)
+            .allow_headers(Any)
+            .allow_methods(Any)
+    };
 
     // 6. Define API Router Layout
     let app = Router::new()
