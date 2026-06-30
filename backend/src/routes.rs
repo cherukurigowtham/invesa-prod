@@ -882,6 +882,128 @@ pub async fn get_idea_analysis(
     }
 }
 
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
+pub struct GeminiAnalysisJson {
+    pub overall_score: i32,
+    pub market_fit_rating: i32,
+    pub viability_rating: i32,
+    pub innovation_rating: i32,
+    pub strengths: Vec<String>,
+    pub weaknesses: Vec<String>,
+    pub opportunities: Vec<String>,
+    pub threats: Vec<String>,
+    pub recommendations: String,
+}
+
+pub async fn generate_gemini_analysis(
+    api_key: &str,
+    title: &str,
+    description: &str,
+    category: &str,
+    stage: &str,
+) -> Result<GeminiAnalysisJson, AppError> {
+    let client = reqwest::Client::new();
+    let url = format!(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={}",
+        api_key
+    );
+
+    let prompt = format!(
+        "Perform a comprehensive startup investment analysis and SWOT critique for the following idea:\n\n\
+         Title: {}\n\
+         Category: {}\n\
+         Stage: {}\n\
+         Description: {}\n\n\
+         Return ratings from 1 to 5, an overall score from 40 to 99, 3-5 bullet points for each SWOT section, and professional bulleted recommendations.",
+        title, category, stage, description
+    );
+
+    let schema = json!({
+        "type": "OBJECT",
+        "properties": {
+            "overall_score": { "type": "INTEGER", "description": "Rating score between 40 and 99" },
+            "market_fit_rating": { "type": "INTEGER", "description": "Rating between 1 and 5" },
+            "viability_rating": { "type": "INTEGER", "description": "Rating between 1 and 5" },
+            "innovation_rating": { "type": "INTEGER", "description": "Rating between 1 and 5" },
+            "strengths": { "type": "ARRAY", "items": { "type": "STRING" } },
+            "weaknesses": { "type": "ARRAY", "items": { "type": "STRING" } },
+            "opportunities": { "type": "ARRAY", "items": { "type": "STRING" } },
+            "threats": { "type": "ARRAY", "items": { "type": "STRING" } },
+            "recommendations": { "type": "STRING", "description": "Professional suggestions for next steps" }
+        },
+        "required": [
+            "overall_score",
+            "market_fit_rating",
+            "viability_rating",
+            "innovation_rating",
+            "strengths",
+            "weaknesses",
+            "opportunities",
+            "threats",
+            "recommendations"
+        ]
+    });
+
+    let payload = json!({
+        "contents": [
+            {
+                "parts": [
+                    { "text": prompt }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "responseSchema": schema
+        }
+    });
+
+    let res = client.post(&url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| AppError::Internal(format!("Failed to reach Gemini API: {}", e)))?;
+
+    if !res.status().is_success() {
+        let err_body = res.text().await.unwrap_or_default();
+        return Err(AppError::Internal(format!("Gemini API error response: {}", err_body)));
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GeminiCandidatePart {
+        text: String,
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GeminiCandidate {
+        content: GeminiCandidateContent,
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GeminiCandidateContent {
+        parts: Vec<GeminiCandidatePart>,
+    }
+
+    #[derive(serde::Deserialize)]
+    struct GeminiResponse {
+        candidates: Vec<GeminiCandidate>,
+    }
+
+    let gemini_res: GeminiResponse = res.json()
+        .await
+        .map_err(|e| AppError::Internal(format!("Failed to parse Gemini response envelope: {}", e)))?;
+
+    let text_content = gemini_res.candidates.first()
+        .and_then(|c| c.content.parts.first())
+        .map(|p| &p.text)
+        .ok_or_else(|| AppError::Internal("Empty response from Gemini API".to_string()))?;
+
+    let parsed_analysis: GeminiAnalysisJson = serde_json::from_str(text_content)
+        .map_err(|e| AppError::Internal(format!("Failed to deserialize structured startup analysis: {}. Raw text: {}", e, text_content)))?;
+
+    Ok(parsed_analysis)
+}
+
 pub async fn analyze_idea(
     State(pool): State<PgPool>,
     _auth: AuthUser,
@@ -896,7 +1018,9 @@ pub async fn analyze_idea(
     .await?
     .ok_or_else(|| AppError::NotFound("Startup idea not found".to_string()))?;
 
-    // 2. Generate analysis
+    // 2. Generate analysis (attempt live Gemini first, fallback to mock analysis if key is missing or call fails)
+    let gemini_key = std::env::var("GEMINI_API_KEY").ok();
+    
     let (
         overall_score,
         market_fit,
@@ -907,7 +1031,32 @@ pub async fn analyze_idea(
         opportunities,
         threats,
         recommendations,
-    ) = generate_mock_analysis(idea_id, &idea.title, &idea.description, &idea.category, &idea.stage);
+    ) = match gemini_key {
+        Some(ref key) if !key.trim().is_empty() => {
+            tracing::info!("🤖 Calling Gemini API for live startup analysis of '{}'...", idea.title);
+            match generate_gemini_analysis(key, &idea.title, &idea.description, &idea.category, &idea.stage).await {
+                Ok(a) => (
+                    a.overall_score,
+                    a.market_fit_rating,
+                    a.viability_rating,
+                    a.innovation_rating,
+                    a.strengths,
+                    a.weaknesses,
+                    a.opportunities,
+                    a.threats,
+                    a.recommendations,
+                ),
+                Err(e) => {
+                    tracing::error!("⚠️ Live Gemini analysis failed (falling back to mock): {:?}", e);
+                    generate_mock_analysis(idea_id, &idea.title, &idea.description, &idea.category, &idea.stage)
+                }
+            }
+        }
+        _ => {
+            tracing::info!("ℹ️ GEMINI_API_KEY not set. Using local mock analysis for '{}'.", idea.title);
+            generate_mock_analysis(idea_id, &idea.title, &idea.description, &idea.category, &idea.stage)
+        }
+    };
 
     // 3. Insert or update analysis (ON CONFLICT on idea_id)
     let analysis = sqlx::query_as::<_, IdeaAnalysis>(
