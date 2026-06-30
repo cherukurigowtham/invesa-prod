@@ -2239,3 +2239,26 @@ async fn broadcast_task_event(idea_id: Uuid, sender_id: Uuid, pool: &PgPool) {
     }
 }
 
+// ----------------------------------------
+// DIAGNOSTIC HEALTH CHECK ROUTE
+// ----------------------------------------
+
+pub async fn get_health(
+    State(pool): State<PgPool>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    // Check Neon PG connection health
+    let db_status = match sqlx::query("SELECT 1").execute(&pool).await {
+        Ok(_) => "healthy",
+        Err(e) => {
+            tracing::error!("Health check database query failure: {:?}", e);
+            "unhealthy"
+        }
+    };
+
+    Ok(Json(json!({
+        "status": if db_status == "healthy" { "ok" } else { "degraded" },
+        "database": db_status,
+        "timestamp": Utc::now().to_rfc3339(),
+    })))
+}
+

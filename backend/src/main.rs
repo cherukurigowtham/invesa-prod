@@ -81,8 +81,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .allow_methods(Any)
     };
 
-    // 6. Define API Router Layout
-    let app = Router::new()
+    // 6. Define API Router Layout with selective IP-based rate limiting
+    let api_routes = Router::new()
         // Auth API
         .route("/v1/auth/register", post(register))
         .route("/v1/auth/login", post(login))
@@ -117,6 +117,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/v1/team-meetings", get(get_team_meetings))
         .route("/v1/ideas/{idea_id}/tasks", get(get_tasks).post(create_task))
         .route("/v1/ideas/{idea_id}/tasks/{task_id}", put(update_task).delete(delete_task))
+        .layer(axum::middleware::from_fn(middleware::rate_limit_middleware));
+
+    let app = Router::new()
+        // Health check endpoint (bypasses rate limits so uptime pings succeed)
+        .route("/v1/health", get(get_health))
+        .merge(api_routes)
         .layer(cors)
         .layer(sentry::integrations::tower::SentryHttpLayer::with_transaction())
         .with_state(pool);
@@ -126,7 +132,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("🛡️  Invesa Core Server ONLINE on {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await?;
 
     Ok(())
 }
