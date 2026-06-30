@@ -1,4 +1,6 @@
 
+import { Link } from 'react-router-dom';
+
 export default function Footer() {
   return (
     <footer className="bg-[#04040a] border-t border-white/[0.05] py-12 sm:py-16">
@@ -92,11 +94,11 @@ export default function Footer() {
           <div>
             <h4 className="text-white text-sm font-semibold tracking-wider uppercase mb-4">Platform</h4>
             <ul className="space-y-2.5 text-sm text-white/50">
-              <li><a href="/ideas" className="hover:text-white transition-colors">Browse Projects</a></li>
-              <li><a href="/feed" className="hover:text-white transition-colors">Project Updates</a></li>
-              <li><a href="/post-idea" className="hover:text-white transition-colors">Post Project</a></li>
-              <li><a href="/register" className="hover:text-white transition-colors">Join as Partner</a></li>
-              <li><a href="/register" className="hover:text-white transition-colors">Support Projects</a></li>
+              <li><Link to="/ideas" onMouseEnter={() => (window as any).__invesa_prefetch?.("/ideas")} className="hover:text-white transition-colors">Browse Projects</Link></li>
+              <li><Link to="/feed" onMouseEnter={() => (window as any).__invesa_prefetch?.("/feed")} className="hover:text-white transition-colors">Project Updates</Link></li>
+              <li><Link to="/post-idea" onMouseEnter={() => (window as any).__invesa_prefetch?.("/post-idea")} className="hover:text-white transition-colors">Post Project</Link></li>
+              <li><Link to="/register" onMouseEnter={() => (window as any).__invesa_prefetch?.("/register")} className="hover:text-white transition-colors">Join as Partner</Link></li>
+              <li><Link to="/register" onMouseEnter={() => (window as any).__invesa_prefetch?.("/register")} className="hover:text-white transition-colors">Support Projects</Link></li>
             </ul>
           </div>
 

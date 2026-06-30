@@ -9,19 +9,59 @@ import Footer from './shared/components/Footer';
 import ProtectedRoute from './shared/components/ProtectedRoute';
 import { ToastProvider } from './shared/components/Toast';
 
+// Custom preloading wrapper for dynamic imports to enable predictive loading
+function lazyWithPreload<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+) {
+  const Component = lazy(factory);
+  (Component as any).preload = factory;
+  return Component as React.LazyExoticComponent<T> & { preload: () => Promise<{ default: T }> };
+}
+
 // Lazy load page components for route-based code splitting
-const Landing = lazy(() => import('./pages/Landing'));
-const Auth = lazy(() => import('./pages/Auth'));
-const Explore = lazy(() => import('./pages/Explore'));
-const IdeaDetail = lazy(() => import('./pages/IdeaDetail'));
-const PostIdea = lazy(() => import('./pages/PostIdea'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const FounderDashboard = lazy(() => import('./pages/dashboard/FounderDashboard'));
-const BuilderDashboard = lazy(() => import('./pages/dashboard/BuilderDashboard'));
-const InvestorDashboard = lazy(() => import('./pages/dashboard/InvestorDashboard'));
-const Equity = lazy(() => import('./pages/Equity'));
-const Matchmaker = lazy(() => import('./pages/Matchmaker'));
-const Chat = lazy(() => import('./pages/Chat'));
+const Landing = lazyWithPreload(() => import('./pages/Landing'));
+const Auth = lazyWithPreload(() => import('./pages/Auth'));
+const Explore = lazyWithPreload(() => import('./pages/Explore'));
+const IdeaDetail = lazyWithPreload(() => import('./pages/IdeaDetail'));
+const PostIdea = lazyWithPreload(() => import('./pages/PostIdea'));
+const Dashboard = lazyWithPreload(() => import('./pages/Dashboard'));
+const FounderDashboard = lazyWithPreload(() => import('./pages/dashboard/FounderDashboard'));
+const BuilderDashboard = lazyWithPreload(() => import('./pages/dashboard/BuilderDashboard'));
+const InvestorDashboard = lazyWithPreload(() => import('./pages/dashboard/InvestorDashboard'));
+const Equity = lazyWithPreload(() => import('./pages/Equity'));
+const Matchmaker = lazyWithPreload(() => import('./pages/Matchmaker'));
+const Chat = lazyWithPreload(() => import('./pages/Chat'));
+
+// Define global route prefetching handler to load JS bundles on hover
+const prefetchRoute = (path: string) => {
+  try {
+    if (path.startsWith('/dashboard')) {
+      Dashboard.preload();
+      // Pre-warm role dashboards to make redirection instantaneous
+      FounderDashboard.preload();
+      BuilderDashboard.preload();
+      InvestorDashboard.preload();
+    } else if (path === '/ideas' || path === '/feed') {
+      Explore.preload();
+    } else if (path.startsWith('/ideas/')) {
+      IdeaDetail.preload();
+    } else if (path === '/post-idea') {
+      PostIdea.preload();
+    } else if (path === '/cap-table' || path === '/term-sheets' || path === '/vesting') {
+      Equity.preload();
+    } else if (path === '/matchmaker') {
+      Matchmaker.preload();
+    } else if (path === '/chat') {
+      Chat.preload();
+    } else if (path === '/login' || path === '/register' || path === '/forgot-password') {
+      Auth.preload();
+    }
+  } catch (err) {
+    console.warn('Failed to prefetch chunk for route:', path, err);
+  }
+};
+
+(window as any).__invesa_prefetch = prefetchRoute;
 
 // Sleek glassmorphic Loading fallback UI
 function RouteLoader({ invisible = false }: { invisible?: boolean }) {

@@ -255,6 +255,7 @@ export default function IdeaFeed({ isSubComponent = false }: { isSubComponent?: 
                 <div
                   key={idea.id}
                   onClick={() => navigate(`/ideas/${idea.id}`)}
+                  onMouseEnter={() => (window as any).__invesa_prefetch?.(`/ideas/${idea.id}`)}
                   className="idea-card flex flex-col justify-between relative group"
                 >
                   {/* Top Row: category & Stage */}
@@ -312,6 +313,7 @@ export default function IdeaFeed({ isSubComponent = false }: { isSubComponent?: 
                 <div
                   key={idea.id}
                   onClick={() => navigate(`/ideas/${idea.id}`)}
+                  onMouseEnter={() => (window as any).__invesa_prefetch?.(`/ideas/${idea.id}`)}
                   className="glass-card p-5 hover:border-indigo-500/20 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all group"
                 >
                   <div className="space-y-2 flex-1 min-w-0">

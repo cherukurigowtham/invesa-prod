@@ -192,13 +192,14 @@ export default function Navbar() {
                             </span>
                             <span className="text-[9px] text-white/30 capitalize">{idea.stage}</span>
                           </div>
-                          <a 
-                            href={`/ideas/${idea.id}`}
+                          <Link 
+                            to={`/ideas/${idea.id}`}
+                            onMouseEnter={() => (window as any).__invesa_prefetch?.(`/ideas/${idea.id}`)}
                             className="font-semibold text-xs text-white group-hover:text-indigo-400 transition-colors flex items-center justify-between gap-1 mt-1"
                           >
                             <span className="truncate">{idea.title}</span>
                             <ArrowUpRight className="w-3.5 h-3.5 text-white/40 group-hover:text-indigo-400" />
-                          </a>
+                          </Link>
                         </div>
                       ))}
                     </div>

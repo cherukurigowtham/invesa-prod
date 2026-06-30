@@ -44,6 +44,7 @@ export default function Sidebar({ user }: SidebarProps) {
               key={to}
               to={to}
               title={label}
+              onMouseEnter={() => (window as any).__invesa_prefetch?.(to)}
               className={`sidebar-link ${active ? 'sidebar-link-active' : 'sidebar-link-idle'}`}
             >
               <Icon className="w-[17px] h-[17px] flex-shrink-0" />
