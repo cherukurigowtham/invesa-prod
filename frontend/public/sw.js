@@ -1,12 +1,10 @@
-const CACHE_NAME = 'invesa-cache-v1';
+const CACHE_NAME = 'invesa-cache-v2'; // Bump version to clear old cached index.html
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
   '/favicon.svg',
   '/icons.svg'
 ];
 
-// Install Event - Pre-cache assets
+// Install Event - Pre-cache static logo assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -32,7 +30,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event - Network first with cache fallback, or cache first for static assets
+// Fetch Event
 self.addEventListener('fetch', (event) => {
   // Only handle local/same-origin GET requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
@@ -46,10 +44,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 1. Navigation / Document requests: Network-First to prevent serving stale hashed chunk links
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Offline fallback
+          return caches.match('/index.html') || caches.match('/');
+        })
+    );
+    return;
+  }
+
+  // 2. Static CSS/JS Chunks and Media: Stale-While-Revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Return cached resource immediately but fetch fresh copy in background (Stale-While-Revalidate)
         fetch(event.request).then((networkResponse) => {
           if (networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
@@ -69,12 +86,7 @@ self.addEventListener('fetch', (event) => {
         });
 
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback for page navigation
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-      });
+      }).catch(() => {});
     })
   );
 });
