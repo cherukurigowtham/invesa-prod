@@ -9,6 +9,7 @@ pub struct Config {
     pub app_env: String,
     pub frontend_url: String,
     pub max_db_connections: u32,
+    pub sentry_dsn: Option<String>,
 }
 
 impl Config {
@@ -47,6 +48,8 @@ impl Config {
             .parse::<u32>()
             .unwrap_or(20);
 
+        let sentry_dsn = env::var("SENTRY_DSN").ok();
+
         Self {
             database_url,
             jwt_secret,
@@ -54,6 +57,7 @@ impl Config {
             app_env,
             frontend_url,
             max_db_connections,
+            sentry_dsn,
         }
     }
 }

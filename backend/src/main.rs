@@ -5,8 +5,8 @@ use axum::{
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
-use tracing::{info, Level};
-use tracing_subscriber::FmtSubscriber;
+use tracing::info;
+use tracing_subscriber::prelude::*;
 
 mod config;
 mod errors;
@@ -19,16 +19,36 @@ use routes::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Initialize logging
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::INFO)
-        .finish();
-    tracing::subscriber::set_global_default(subscriber)?;
+    // 1. Load Configuration
+    let config = Config::from_env();
+
+    // 2. Initialize Sentry if DSN is set
+    let _sentry_guard = if let Some(ref dsn) = config.sentry_dsn {
+        let guard = sentry::init((
+            dsn.clone(),
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                traces_sample_rate: 1.0,
+                ..Default::default()
+            },
+        ));
+        Some(guard)
+    } else {
+        None
+    };
+
+    // 3. Initialize logging with standard output and Sentry tracing layers
+    let fmt_layer = tracing_subscriber::fmt::layer();
+    let env_filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"));
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(fmt_layer)
+        .with(sentry::integrations::tracing::layer())
+        .init();
 
     info!("🚀 Initializing Invesa Secure Backend...");
-
-    // 2. Load Configuration
-    let config = Config::from_env();
 
     // 3. Connect to PostgreSQL Pool
     info!("🗄️ Connecting to PostgreSQL Database...");
@@ -98,6 +118,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/v1/ideas/{idea_id}/tasks", get(get_tasks).post(create_task))
         .route("/v1/ideas/{idea_id}/tasks/{task_id}", put(update_task).delete(delete_task))
         .layer(cors)
+        .layer(sentry::integrations::tower::SentryHttpLayer::with_transaction())
         .with_state(pool);
 
     // 7. Bind and Start Axum Listener

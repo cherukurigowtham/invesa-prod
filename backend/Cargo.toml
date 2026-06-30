@@ -17,6 +17,7 @@ chrono = { version = "0.4.39", features = ["serde"] }
 dotenvy = "0.15.7"
 tower-http = { version = "0.6.2", features = ["cors", "trace"] }
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "registry", "fmt"] }
 validator = { version = "0.18", features = ["derive"] }
+sentry = { version = "0.34.0", features = ["tracing", "tower-axum-matched-path"] }
 
